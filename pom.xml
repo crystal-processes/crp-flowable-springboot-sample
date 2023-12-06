@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>io.github.crystal-processes</groupId>
 	<artifactId>crp-flowable-springboot-sample</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<name>crp-flowable-springboot-sample</name>
 	<description>Spring boot application with Flowable and extension libraries</description>
 	<properties>
@@ -121,7 +121,7 @@
 		<url>https://github.com/crystal-processes/crp-flowable-springboot-sample</url>
 		<connection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</connection>
 		<developerConnection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</developerConnection>
-	  <tag>HEAD</tag>
+	  <tag>crp-flowable-springboot-sample-0.0.2</tag>
   </scm>
 	<licenses>
 		<license>
