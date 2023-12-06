@@ -20,7 +20,7 @@ import org.springframework.http.ResponseEntity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@SpringBootTest(classes = CrpFlowableSpringBootSampleApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = AcmeApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebClient(registerRestTemplate = true)
 public class RestApiApplicationTest {
 
@@ -43,8 +43,10 @@ public class RestApiApplicationTest {
             .as("Status code")
             .isEqualTo(HttpStatus.OK);
         DataResponse<ProcessDefinitionResponse> processDefinitions = response.getBody();
-        assertThat(processDefinitions).isNotNull();
-        assertThat(processDefinitions.getTotal()).isEqualTo(0);
+        assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(1L);
+        assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
+                .extracting(ProcessDefinitionResponse::getKey)
+                .containsExactly("P001-helloWorld");
     }
 
     @Test

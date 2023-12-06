@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class CrpFlowableSpringBootSampleApplication {
+public class AcmeApplication {
 
 	@Bean
 	InitializingBean usersAndGroupsInitializer(final IdentityService identityService) {
@@ -33,7 +33,7 @@ public class CrpFlowableSpringBootSampleApplication {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(CrpFlowableSpringBootSampleApplication.class, args);
+		SpringApplication.run(AcmeApplication.class, args);
 	}
 
 }
