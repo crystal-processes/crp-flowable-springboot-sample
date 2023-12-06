@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @ExtendWith({SpringExtension.class, FlowableSpringExtension.class})
-@SpringBootTest
+@SpringBootTest(classes={AcmeApplication.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public @interface AcmeApplicationTest {
 }
