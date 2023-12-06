@@ -7,10 +7,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class CrpFlowableSpringBootSampleApplicationTests {
+class AcmeApplicationTests {
 
 	@Autowired
-	private CrpFlowableSpringBootSampleApplication application;
+	private AcmeApplication application;
 
 	@Test
 	void contextLoads() {
