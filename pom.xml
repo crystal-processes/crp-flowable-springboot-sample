@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>io.github.crystal-processes</groupId>
 			<artifactId>crp-flowable-assert</artifactId>
-			<version>0.0.5-SNAPSHOT</version>
+			<version>0.0.5</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -129,7 +129,6 @@
 		<profile>
 			<id>ci/cd</id>
 			<build>
-				<pluginManagement>
 					<plugins>
 						<plugin>
 							<groupId>org.sonatype.plugins</groupId>
@@ -176,7 +175,6 @@
 							</configuration>
 						</plugin>
 					</plugins>
-				</pluginManagement>
 			</build>
 
 			<distributionManagement>
