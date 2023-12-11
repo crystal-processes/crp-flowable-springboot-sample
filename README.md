@@ -9,7 +9,7 @@ I would like to encourage anybody, who has a problem to [write an issue to the p
 
 # Step 01 - Basic spring boot and model application
 The first step is dedicated to an ordinary sample application. 
-## [Initial spring boot and flowable application](docs/01_sample/01-initialApp.md)
-No problem till now, just follow doc. (flowable, spring boot...)
-## [Hello World application model](docs/01_sample/02-helloWorld.md)
-:beetle: How to test and make assertions in the model?
+## :sunny: [Initial spring boot and flowable application](docs/01_sample/01-initialApp.md)
+No problem till now, just follow the doc. (flowable, spring boot...)
+## :partly_sunny: [Hello World application model](docs/01_sample/02-helloWorld.md)
+:partly_sunny: How to test and make assertions in the model?
