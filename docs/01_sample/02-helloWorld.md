@@ -25,3 +25,5 @@ https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/f33a00a
 
 ### Groovy tests
 The groovy tests can be even more readable:
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/a104ec735f37200a5eef93aab16142488c3cf82b/src/test/groovy/org/crp/flowable/springboot/sample/HelloWorldProcessGroovyTest.groovy#L19-L54
