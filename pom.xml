@@ -186,19 +186,8 @@
 		<profile>
 			<id>ci/cd</id>
 			<build>
-				<pluginManagement>
 					<plugins>
-						<plugin>
-							<groupId>org.sonatype.plugins</groupId>
-							<artifactId>nexus-staging-maven-plugin</artifactId>
-							<version>1.6.7</version>
-							<extensions>true</extensions>
-							<configuration>
-								<serverId>ossrh</serverId>
-								<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-								<autoReleaseAfterClose>true</autoReleaseAfterClose>
-							</configuration>
-						</plugin>
+
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-gpg-plugin</artifactId>
@@ -233,7 +222,6 @@
 							</configuration>
 						</plugin>
 					</plugins>
-				</pluginManagement>
 			</build>
 
 			<distributionManagement>
