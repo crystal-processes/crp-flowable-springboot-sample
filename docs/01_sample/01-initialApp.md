@@ -8,13 +8,14 @@ Follow the first steps in [Spring Boot flowable opensource documentation](https:
 `flowable-spring-boot-starter-rest` is used.
 
 ## How to build
+
 ```shell
 ./mvnw clean install
 ```
 
 ## How to run
 ```shell
-java -jar target/crp-flowable-springboot-sample-0.0.1-SNAPSHOT.jar
+java -jar target/crp-flowable-springboot-sample-0.1.0.jar
 ```
 
 ## How to check

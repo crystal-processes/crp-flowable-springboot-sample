@@ -9,10 +9,12 @@
 	</parent>
 	<groupId>io.github.crystal-processes</groupId>
 	<artifactId>crp-flowable-springboot-sample</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>crp-flowable-springboot-sample</name>
-	<description>Spring boot application with Flowable and extension libraries</description>
+	<description>A "sample" Spring boot application + Flowable application, to show the most common issues and propose
+		solutions.</description>
 	<properties>
+		<start-class>org.crp.flowable.springboot.sample.AcmeApplication</start-class>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>17</java.version>
 		<flowable.version>7.0.0</flowable.version>
@@ -52,6 +54,13 @@
 			<version>0.0.5</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>4.0.16</version>
+			<scope>test</scope>
+			<type>pom</type>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -62,13 +71,55 @@
 				<version>0.0.4</version>
 			</extension>
 		</extensions>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>org.crp.flowable.springboot.sample.AcmeApplication</mainClass>
+					<layout>JAR</layout>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+			</plugin>
+
+			<!-- Groovy plugin -->
+			<plugin>
+				<groupId>org.codehaus.gmavenplus</groupId>
+				<artifactId>gmavenplus-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>execute</goal>
+							<goal>addSources</goal>
+							<goal>addTestSources</goal>
+							<goal>generateStubs</goal>
+							<goal>compile</goal>
+							<goal>generateTestStubs</goal>
+							<goal>compileTests</goal>
+							<goal>removeStubs</goal>
+							<goal>removeTestStubs</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<useFile>false</useFile>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Test.groovy</include>
+					</includes>
+				</configuration>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-				</plugin>
-
 				<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
 				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>
@@ -78,10 +129,6 @@
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.3.1</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-install-plugin</artifactId>
