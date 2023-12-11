@@ -11,7 +11,8 @@
 	<artifactId>crp-flowable-springboot-sample</artifactId>
 	<version>0.0.3-SNAPSHOT</version>
 	<name>crp-flowable-springboot-sample</name>
-	<description>Spring boot application with Flowable and extension libraries</description>
+	<description>A "sample" Spring boot application + Flowable application, to show the most common issues and propose
+		solutions.</description>
 	<properties>
 		<start-class>org.crp.flowable.springboot.sample.AcmeApplication</start-class>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
