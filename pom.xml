@@ -9,10 +9,11 @@
 	</parent>
 	<groupId>io.github.crystal-processes</groupId>
 	<artifactId>crp-flowable-springboot-sample</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>crp-flowable-springboot-sample</name>
 	<description>Spring boot application with Flowable and extension libraries</description>
 	<properties>
+		<start-class>org.crp.flowable.springboot.sample.AcmeApplication</start-class>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>17</java.version>
 		<flowable.version>7.0.0</flowable.version>
@@ -49,8 +50,15 @@
 		<dependency>
 			<groupId>io.github.crystal-processes</groupId>
 			<artifactId>crp-flowable-assert</artifactId>
-			<version>0.0.5-SNAPSHOT</version>
+			<version>0.0.5</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>4.0.16</version>
+			<scope>test</scope>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 
@@ -62,13 +70,55 @@
 				<version>0.0.4</version>
 			</extension>
 		</extensions>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>org.crp.flowable.springboot.sample.AcmeApplication</mainClass>
+					<layout>JAR</layout>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+			</plugin>
+
+			<!-- Groovy plugin -->
+			<plugin>
+				<groupId>org.codehaus.gmavenplus</groupId>
+				<artifactId>gmavenplus-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>execute</goal>
+							<goal>addSources</goal>
+							<goal>addTestSources</goal>
+							<goal>generateStubs</goal>
+							<goal>compile</goal>
+							<goal>generateTestStubs</goal>
+							<goal>compileTests</goal>
+							<goal>removeStubs</goal>
+							<goal>removeTestStubs</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<useFile>false</useFile>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Test.groovy</include>
+					</includes>
+				</configuration>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-				</plugin>
-
 				<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
 				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>
@@ -78,29 +128,6 @@
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.3.1</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.11.0</version>
-					<configuration>
-						<compilerArgs>
-							<arg>-parameters</arg>
-						</compilerArgs>
-					</configuration>
-				</plugin>
-				<plugin>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M5</version>
-					<configuration>
-						<useFile>false</useFile>
-						<includes>
-							<include>**/*Test.java</include>
-						</includes>
-					</configuration>
-				</plugin>
-				<plugin>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-install-plugin</artifactId>
@@ -119,6 +146,17 @@
 					<artifactId>maven-project-info-reports-plugin</artifactId>
 					<version>3.0.0</version>
 				</plugin>
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.7</version>
+					<extensions>true</extensions>
+					<configuration>
+						<serverId>ossrh</serverId>
+						<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+						<autoReleaseAfterClose>true</autoReleaseAfterClose>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -127,7 +165,7 @@
 		<url>https://github.com/crystal-processes/crp-flowable-springboot-sample</url>
 		<connection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</connection>
 		<developerConnection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</developerConnection>
-	  <tag>HEAD</tag>
+	  <tag>crp-flowable-springboot-sample-0.0.2</tag>
   </scm>
 	<licenses>
 		<license>
@@ -173,7 +211,7 @@
 									</goals>
 									<configuration>
 										<keyname>${gpg.keyname}</keyname>
-										<passphraseServerId>${gpg.keyname}</passphraseServerId>
+										<passphraseServerId>${gpg.passphrase}</passphraseServerId>
 										<gpgArguments>
 											<arg>--pinentry-mode</arg>
 											<arg>loopback</arg>
