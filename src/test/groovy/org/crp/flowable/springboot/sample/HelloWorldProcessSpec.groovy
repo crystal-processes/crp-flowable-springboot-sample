@@ -1,17 +1,10 @@
 package org.crp.flowable.springboot.sample
 
 import org.assertj.core.groups.Tuple
-import org.flowable.engine.HistoryService
-import org.flowable.engine.RuntimeService
-import org.flowable.engine.TaskService
-import org.flowable.spring.impl.test.FlowableSpringExtension
-import org.junit.jupiter.api.extension.ExtendWith
+import org.flowable.engine.*
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import spock.lang.Specification
 
 import static org.crp.flowable.assertions.CrpFlowableAssertions.assertThat
@@ -26,6 +19,12 @@ class HelloWorldProcessSpec extends Specification {
     TaskService taskService
     @Autowired
     HistoryService historyService
+    @Autowired
+    ProcessEngine processEngine
+
+    def setup(){
+        ProcessEngines.registerProcessEngine(processEngine)
+    }
 
     def 'Follow happy path in Hello World process'() {
         given:
@@ -67,8 +66,6 @@ class HelloWorldProcessSpec extends Specification {
                     .activities()
                     .extracting('activityId')
                     .containsExactlyInAnyOrderElementsOf(expectedPath + ["theSayHelloUserTask-theEnd", "theEnd"])
-
-        cleanup:
-            historyService.createHistoricProcessInstanceQuery().processInstanceId(helloWorldProcess.id).delete()
     }
+
 }
