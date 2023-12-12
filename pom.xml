@@ -18,6 +18,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>17</java.version>
 		<flowable.version>7.0.0</flowable.version>
+
+		<application.name>acme</application.name>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -188,6 +190,80 @@
 	</developers>
 
 	<profiles>
+		<profile>
+			<id>downloadModel</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>downloadApplicationModel</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<arguments>
+										<argument>-jar</argument>
+										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
+										<argument>designer-export</argument>
+										<argument>${application.name}</argument>
+										<argument>--output-file-name</argument>
+										<argument>target/temp_${application.name}.zip</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>unzipToModelDir</id>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<arguments>
+										<argument>-jar</argument>
+										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
+										<argument>unzip</argument>
+										<argument>target/temp_${application.name}.zip</argument>
+										<argument>src/main/model/${application.name}</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>ZipToDeployableApp</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<arguments>
+										<argument>-jar</argument>
+										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
+										<argument>zip</argument>
+										<argument>src/main/model/${application.name}</argument>
+										<argument>src/main/resources/apps/${application.name}-bar.zip</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>io.github.crystal-processes</groupId>
+								<artifactId>crp-flowable-shell</artifactId>
+								<version>0.0.5</version>
+								<type>jar</type>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>ci/cd</id>
 			<build>
