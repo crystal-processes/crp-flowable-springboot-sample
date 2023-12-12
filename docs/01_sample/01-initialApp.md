@@ -1,8 +1,3 @@
-[version: 0.0.1](https://github.com/crystal-processes/crp-flowable-springboot-sample/releases/tag/crp-flowable-springboot-sample-0.0.1)
-
-[tag: crp-flowable-springboot-sample-0.0.1](https://github.com/crystal-processes/crp-flowable-springboot-sample/releases/tag/crp-flowable-springboot-sample-0.0.1)
-
-
 ## What was done
 Follow the first steps in [Spring Boot flowable opensource documentation](https://www.flowable.com/open-source/docs/bpmn/ch05a-Spring-Boot). There are several videos related to the same topic. Instead of `flowable-spring-boot-starter`,
 `flowable-spring-boot-starter-rest` is used.

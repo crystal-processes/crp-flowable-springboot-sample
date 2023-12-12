@@ -5,9 +5,9 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2023-12-06T06:00:45.166Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2023-12-06T15:47:14.755Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2023-12-12T21:15:52.857Z]]></design:modificationdate>
     </extensionElements>
-    <userTask id="theSayHelloUserTask" name="Say hello world" flowable:assignee="${initiator}" flowable:formFieldValidation="false">
+    <userTask id="theSayHelloUserTask" name="Say 'Hello World!'" flowable:assignee="${initiator}" flowable:formFieldValidation="false">
       <extensionElements>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
