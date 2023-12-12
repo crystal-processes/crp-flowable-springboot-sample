@@ -12,4 +12,6 @@ The first step is dedicated to an ordinary sample application.
 ## :sunny: [Initial spring boot and flowable application](docs/01_sample/01-initialApp.md)
 No problem till now, just follow the doc. (flowable, spring boot...)
 ## :partly_sunny: [Hello World application model](docs/01_sample/02-helloWorld.md)
-:partly_sunny: How to test and make assertions in the model?
+How to test model and with assertions?
+## :partly_sunny: [Integration with remote designer](docs/01_sample/03-designer.md)
+Automate model downloading in maven build.
