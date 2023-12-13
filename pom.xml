@@ -124,6 +124,39 @@
 					</includes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>ZipToDeployableApp</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>java</executable>
+							<arguments>
+								<argument>-jar</argument>
+								<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
+								<argument>zip</argument>
+								<argument>src/main/model/${application.name}</argument>
+								<argument>src/main/resources/apps/${application.name}-bar.zip</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>io.github.crystal-processes</groupId>
+						<artifactId>crp-flowable-shell</artifactId>
+						<version>0.0.5</version>
+						<type>jar</type>
+					</dependency>
+				</dependencies>
+			</plugin>
+
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -231,23 +264,6 @@
 										<argument>unzip</argument>
 										<argument>target/temp_${application.name}.zip</argument>
 										<argument>src/main/model/${application.name}</argument>
-									</arguments>
-								</configuration>
-							</execution>
-							<execution>
-								<id>ZipToDeployableApp</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<arguments>
-										<argument>-jar</argument>
-										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
-										<argument>zip</argument>
-										<argument>src/main/model/${application.name}</argument>
-										<argument>src/main/resources/apps/${application.name}-bar.zip</argument>
 									</arguments>
 								</configuration>
 							</execution>
