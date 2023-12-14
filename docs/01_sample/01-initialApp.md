@@ -9,7 +9,12 @@ Follow the first steps in [Spring Boot flowable opensource documentation](https:
 ```
 
 ## How to run
+Pre-requisites:
+- running docker desktop e.g.[docker-desktop](https://www.docker.com/products/docker-desktop/)
 ```shell
+# start postgresql server 
+docker-compose -f docker-compose/postgres-docker-compose.yml up
+# start acme application
 java -jar target/crp-flowable-springboot-sample-0.1.0.jar
 ```
 

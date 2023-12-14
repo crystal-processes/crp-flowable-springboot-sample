@@ -25,8 +25,30 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<!-- [CVE-2023-6378] CWE-502: Deserialization of Untrusted Data -->
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
+
 		</dependency>
 
+		<dependency>
+			<!-- vulnerability fix for version 1.4.11 -->
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.4.14</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<!-- vulnerability fix for version 1.4.11 -->
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.4.14</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.flowable</groupId>
 			<artifactId>flowable-spring-boot-starter-rest</artifactId>
