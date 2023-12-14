@@ -17,18 +17,24 @@ public class AcmeApplication {
 		return () -> {
 
             // install groups & users
-            Group group = identityService.newGroup("user");
-            group.setName("users");
-            group.setType("security-role");
-            identityService.saveGroup(group);
+            if (identityService.createGroupQuery().groupId("user").count() == 0L) {
+                Group group = identityService.newGroup("user");
+                group.setName("users");
+                group.setType("security-role");
+                identityService.saveGroup(group);
+            }
 
-            User josh = identityService.newUser("jlong");
-            josh.setFirstName("Josh");
-            josh.setLastName("Long");
-            josh.setPassword("password");
-            identityService.saveUser(josh);
+            if (identityService.createUserQuery().userId("jlong").count() == 0L) {
+                User josh = identityService.newUser("jlong");
+                josh.setFirstName("Josh");
+                josh.setLastName("Long");
+                josh.setPassword("password");
+                identityService.saveUser(josh);
+            }
 
-            identityService.createMembership("jlong", "user");
+            if (identityService.createUserQuery().userId("jlong").memberOfGroup("user").count() == 0L) {
+                identityService.createMembership("jlong", "user");
+            }
         };
 	}
 
