@@ -42,11 +42,11 @@ public class RestApiApplicationTest {
             .as("Status code")
             .isEqualTo(HttpStatus.OK);
         DataResponse<ProcessDefinitionResponse> processDefinitions = response.getBody();
-        assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(1L);
+        assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(2L);
         assert processDefinitions != null;
         assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
                 .extracting(ProcessDefinitionResponse::getKey)
-                .containsExactly("P001-helloWorld");
+                .containsExactlyInAnyOrder("P001-helloWorld", "P002-processInsuranceEvent");
     }
 
     @Test

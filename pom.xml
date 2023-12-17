@@ -19,6 +19,7 @@
 		<java.version>17</java.version>
 		<flowable.version>7.0.0</flowable.version>
 
+		<crp-flowable-ex.version>0.0.6</crp-flowable-ex.version>
 		<application.name>acme</application.name>
 	</properties>
 	<dependencies>
@@ -67,6 +68,14 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+			<scope>provided</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -75,7 +84,7 @@
 		<dependency>
 			<groupId>io.github.crystal-processes</groupId>
 			<artifactId>crp-flowable-assert</artifactId>
-			<version>0.0.6</version>
+			<version>${crp-flowable-ex.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -169,7 +178,7 @@
 							<executable>java</executable>
 							<arguments>
 								<argument>-jar</argument>
-								<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.6/crp-flowable-shell-0.0.6.jar</argument>
+								<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/${crp-flowable-ex.version}/crp-flowable-shell-${crp-flowable-ex.version}.jar</argument>
 								<argument>zip</argument>
 								<argument>src/main/model/${application.name}</argument>
 								<argument>src/main/resources/apps/${application.name}-bar.zip</argument>
@@ -181,7 +190,7 @@
 					<dependency>
 						<groupId>io.github.crystal-processes</groupId>
 						<artifactId>crp-flowable-shell</artifactId>
-						<version>0.0.6</version>
+						<version>${crp-flowable-ex.version}</version>
 						<type>jar</type>
 					</dependency>
 				</dependencies>
@@ -322,7 +331,7 @@
 									<executable>java</executable>
 									<arguments>
 										<argument>-jar</argument>
-										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.6/crp-flowable-shell-0.0.6.jar</argument>
+										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/${crp-flowable-ex.version}/crp-flowable-shell-${crp-flowable-ex.version}.jar</argument>
 										<argument>designer-export</argument>
 										<argument>${application.name}</argument>
 										<argument>--output-file-name</argument>
@@ -340,7 +349,7 @@
 									<executable>java</executable>
 									<arguments>
 										<argument>-jar</argument>
-										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.6/crp-flowable-shell-0.0.6.jar</argument>
+										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/${crp-flowable-ex.version}/crp-flowable-shell-${crp-flowable-ex.version}.jar</argument>
 										<argument>unzip</argument>
 										<argument>target/temp_${application.name}.zip</argument>
 										<argument>src/main/model/${application.name}</argument>
@@ -352,7 +361,7 @@
 							<dependency>
 								<groupId>io.github.crystal-processes</groupId>
 								<artifactId>crp-flowable-shell</artifactId>
-								<version>0.0.6</version>
+								<version>${crp-flowable-ex.version}</version>
 								<type>jar</type>
 							</dependency>
 						</dependencies>
