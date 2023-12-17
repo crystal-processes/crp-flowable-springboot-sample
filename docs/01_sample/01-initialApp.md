@@ -15,7 +15,7 @@ Pre-requisites:
 # start postgresql server 
 docker-compose -f docker-compose/postgres-docker-compose.yml up
 # start acme application
-java -jar target/crp-flowable-springboot-sample-0.1.0.jar
+java -jar target/crp-flowable-springboot-sample-0.1.0-exec.jar
 ```
 
 ## How to check
