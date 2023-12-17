@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>io.github.crystal-processes</groupId>
 			<artifactId>crp-flowable-assert</artifactId>
-			<version>0.0.5</version>
+			<version>0.0.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -167,7 +167,7 @@
 							<executable>java</executable>
 							<arguments>
 								<argument>-jar</argument>
-								<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
+								<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.6/crp-flowable-shell-0.0.6.jar</argument>
 								<argument>zip</argument>
 								<argument>src/main/model/${application.name}</argument>
 								<argument>src/main/resources/apps/${application.name}-bar.zip</argument>
@@ -179,7 +179,7 @@
 					<dependency>
 						<groupId>io.github.crystal-processes</groupId>
 						<artifactId>crp-flowable-shell</artifactId>
-						<version>0.0.5</version>
+						<version>0.0.6</version>
 						<type>jar</type>
 					</dependency>
 				</dependencies>
@@ -320,7 +320,7 @@
 									<executable>java</executable>
 									<arguments>
 										<argument>-jar</argument>
-										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
+										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.6/crp-flowable-shell-0.0.6.jar</argument>
 										<argument>designer-export</argument>
 										<argument>${application.name}</argument>
 										<argument>--output-file-name</argument>
@@ -338,7 +338,7 @@
 									<executable>java</executable>
 									<arguments>
 										<argument>-jar</argument>
-										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar</argument>
+										<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/0.0.6/crp-flowable-shell-0.0.6.jar</argument>
 										<argument>unzip</argument>
 										<argument>target/temp_${application.name}.zip</argument>
 										<argument>src/main/model/${application.name}</argument>
@@ -350,7 +350,7 @@
 							<dependency>
 								<groupId>io.github.crystal-processes</groupId>
 								<artifactId>crp-flowable-shell</artifactId>
-								<version>0.0.5</version>
+								<version>0.0.6</version>
 								<type>jar</type>
 							</dependency>
 						</dependencies>
