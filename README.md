@@ -1,3 +1,8 @@
+<!-- TOC -->
+* [Goal:](#goal)
+* [Step 01 - Basic spring boot and model application](#step-01---basic-spring-boot-and-model-application)
+* [Step 02 - Variables](#step-02---variables)
+<!-- TOC -->
 
 # Goal:
 The sample application should show how "easy" you can do something. The purpose of this sample application is to show,
@@ -15,3 +20,22 @@ No problem till now, just follow the doc. (flowable, spring boot...)
 How to test model with assertions?
 ## :partly_sunny: [Integration with remote designer](docs/01_sample/03-designer.md)
 Automate model downloading in maven build.
+
+# Step 02 - Variables
+Flowable allows us to create any variable of almost any type. The projects use variables to store application data. 
+The cost of creating a variable is almost none, the cost of maintenance is tremendous. 
+## :sunny: Support tests between versions
+To demonstrate cost of maintenance, I created a project to support tests between versions [crp-sample-upgrade](https://github.com/crystal-processes/crp-sample-upgrade-test), 
+[HowTo](https://github.com/crystal-processes/crp-sample-upgrade-test?tab=readme-ov-file#prerequisites). 
+Each module depends on the different `crp-flowable-springboot-sample` version. The test usually works in the following steps:
+- Generate data on the "current" application version and store the status in the DB,
+- Start the new application version and run the tests.
+
+The script to run the tests:
+https://github.com/crystal-processes/crp-sample-upgrade-test/blob/689fa62f31561b3e011680add6cd2da72d9b4138/run_test.sh#L4-L13
+
+Generate data for release 0.1.0:
+https://github.com/crystal-processes/crp-sample-upgrade-test/blob/689fa62f31561b3e011680add6cd2da72d9b4138/release-0.1.0/src/test/java/org/crp/flowable/springboot/sample/upgrade/GenerateDataForVersion1Test.java#L10-L22
+
+The tests on the process instance from version 0.1.0 performed on the version 0.2.0.
+https://github.com/crystal-processes/crp-sample-upgrade-test/blob/689fa62f31561b3e011680add6cd2da72d9b4138/release-0.2.0/src/test/java/org/crp/flowable/springboot/sample/upgrade/TestHelloWorldFromV1.java#L23-L41
