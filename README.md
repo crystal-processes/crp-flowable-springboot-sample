@@ -40,9 +40,9 @@ Version 0.2.0 insurance event processing:
 
 The process model changes a little in version 0.2.1. The contract entity, returned from the `getContract` service task, 
 changes in the version 0.2.1:
-
-https://github.com/crystal-processes/crp-flowable-springboot-sample/commit/3695e3658dda732cb5298d1d628af72c4c92c9fc?diff=split&w=0#diff-f5a9e039b5f6c1588ac7c76b11bc83e16ae042fea36ca308d7a526de3023f33b#L15-L20
-
+```java
+    private final Account account; //Complex structure instead of plain String
+```
 The call to external service `Send money` changes accordingly:
 
 ![send money changes](docs/images/processInsuranceEvent-diff021.png)
@@ -57,4 +57,16 @@ Running `v0.2.0` 'P002-processInsuranceEvent' process instances, waiting on the 
 are not able to deserialize `Contract` entity in the next step `Send money` service task.
 [Test](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/main/release-0.2.1/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInV2InsuranceEventProcessTest.java#L30)
 
-https://github.com/crystal-processes/crp-sample-upgrade-test/blob/0e48ea6031fc45bb6325e4f121fb863a4d55afd7/release-0.2.1/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInV2InsuranceEventProcessTest.java#L30-L40
+```java
+    @Test
+    void continueInV1InsuranceEventProcessInstance() {
+        ProcessInstance processInsuranceEvent = runtimeService.createProcessInstanceQuery()
+                .processInstanceName("Insurance event process instance from release 0.2.0")
+                .singleResult();
+        Task assessEventTask = taskService.createTaskQuery().processInstanceId(processInsuranceEvent.getId()).singleResult();
+
+        assertThatThrownBy(
+                () -> taskService.complete(assessEventTask.getId(), Map.of("amount", 5))
+        ).isInstanceOf(FlowableException.class)
+                .hasMessage("Couldn't deserialize object in variable 'contract'");
+    }```
