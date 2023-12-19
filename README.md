@@ -31,3 +31,30 @@ Each module depends on the different `crp-flowable-springboot-sample` version. T
 - Start the new application version and run the tests.
 
 Detailed description: [HowTo](https://github.com/crystal-processes/crp-sample-upgrade-test?tab=readme-ov-file#prerequisites). 
+
+**Use case:**
+
+Version 0.2.0 insurance event processing:
+
+![insurance event process](docs/images/insuranceEventProcess.png)
+
+The process model changes a little in version 0.2.1. The contract entity, returned from the `getContract` service task, 
+changes in the version 0.2.1:
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/commit/3695e3658dda732cb5298d1d628af72c4c92c9fc?diff=split&w=0#diff-f5a9e039b5f6c1588ac7c76b11bc83e16ae042fea36ca308d7a526de3023f33b#L15-L20
+
+The call to external service `Send money` changes accordingly:
+
+![send money changes](docs/images/processInsuranceEvent-diff021.png)
+
+The test `InsuranceEventTest` passes without any issue:
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/7b9daf483b87beff3c949d9f2aa2df8e526e239e/src/test/java/org/crp/flowable/springboot/sample/insurance/InsuranceEventTest.java#L30-L47
+
+:warning: **Problem:**
+Running `v0.2.0` 'P002-processInsuranceEvent' process instances, waiting on the decision on the `Assess event` user task,
+![insurance event process with Assess Event task highlighted](docs/images/insuranceEventProcess-AssessEvent.png)
+are not able to deserialize `Contract` entity in the next step `Send money` service task.
+[Test](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/main/release-0.2.1/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInV2InsuranceEventProcessTest.java#L30)
+
+https://github.com/crystal-processes/crp-sample-upgrade-test/blob/0e48ea6031fc45bb6325e4f121fb863a4d55afd7/release-0.2.1/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInV2InsuranceEventProcessTest.java#L30-L40
