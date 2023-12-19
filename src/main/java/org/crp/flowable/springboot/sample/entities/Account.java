@@ -9,13 +9,12 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Builder
-@Getter @Setter @AllArgsConstructor
-public class Contract implements Serializable {
+@Getter @Setter
+@AllArgsConstructor
+public class Account implements Serializable {
     @Serial
-    private static final long serialVersionUID = -2948855108722785389L;
+    private static final long serialVersionUID = -1524895032576145883L;
 
+    private final String owner;
     private final String id;
-    private final Account account;
-
-    private int maxAmount;
 }

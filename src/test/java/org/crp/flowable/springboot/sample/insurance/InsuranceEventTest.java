@@ -44,6 +44,6 @@ public class InsuranceEventTest {
 
         assertThat(insuranceEventProcess).doesNotExist()
                 .inHistory().isFinished()
-                .hasVariableWithValue("requestedAmount", 10);
+                .hasVariableWithValue("amount", 5);
     }
 }

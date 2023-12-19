@@ -4,7 +4,7 @@
     <extensionElements>
       <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
       <design:creationdate><![CDATA[2023-12-14T09:24:36.648Z]]></design:creationdate>
-      <design:modificationdate><![CDATA[2023-12-14T21:55:37.391Z]]></design:modificationdate>
+      <design:modificationdate><![CDATA[2023-12-19T20:04:09.320Z]]></design:modificationdate>
     </extensionElements>
     <userTask id="AssessEventUserTask" name="Assess event" flowable:assignee="${initiator}" flowable:formFieldValidation="false">
       <extensionElements>
@@ -13,7 +13,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <serviceTask id="sendMoneyServiceTask" name="Send money" flowable:expression="${moneyService.sendMoney(contract.account, amount)}">
+    <serviceTask id="sendMoneyServiceTask" name="Send money" flowable:expression="${moneyService.sendMoney(contract.account.id, amount)}">
       <extensionElements>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
