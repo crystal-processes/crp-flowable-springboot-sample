@@ -58,7 +58,8 @@ Running `v0.2.0` `P002-processInsuranceEvent` process instances, waiting on the 
 ![insurance event process with Assess Event task highlighted](docs/images/insuranceEventProcess-AssessEvent.png)
 
 are not able to deserialize `Contract` entity in the next step `Send money` service task.
-Upgrade test project is able to detect the issue in the following [test](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/main/release-0.2.1/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInV2InsuranceEventProcessTest.java#L30).
+[The upgrade test project](https://github.com/crystal-processes/crp-sample-upgrade-test) is able to detect the issue 
+in the following [test](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/main/release-0.2.1/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInV2InsuranceEventProcessTest.java#L30).
 
 ```java
     @Test
