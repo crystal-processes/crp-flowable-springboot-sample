@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>io.github.crystal-processes</groupId>
 	<artifactId>crp-flowable-springboot-sample</artifactId>
-	<version>0.2.2-SNAPSHOT</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<name>crp-flowable-springboot-sample</name>
 	<description>A "sample" Spring boot application + Flowable application, to show the most common issues and propose
 		solutions.</description>
