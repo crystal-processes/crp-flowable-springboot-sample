@@ -33,7 +33,7 @@ Each module depends on the different `crp-flowable-springboot-sample` version. T
 Detailed description: [HowTo](https://github.com/crystal-processes/crp-sample-upgrade-test?tab=readme-ov-file#prerequisites). 
 
 ## :partly_sunny: Variables with java serialization
-###Use case:
+### Use case:
 
 Version 0.2.0 insurance event processing:
 
@@ -52,7 +52,7 @@ The test `InsuranceEventTest` passes without any issue:
 
 https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/7b9daf483b87beff3c949d9f2aa2df8e526e239e/src/test/java/org/crp/flowable/springboot/sample/insurance/InsuranceEventTest.java#L30-L47
 
-###:warning: Problem:
+### :warning: Problem:
 Running `v0.2.0` `P002-processInsuranceEvent` process instances, waiting on the decision on the `Assess event` user task,
 
 ![insurance event process with Assess Event task highlighted](docs/images/insuranceEventProcess-AssessEvent.png)
