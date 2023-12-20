@@ -73,4 +73,5 @@ in the following [test](https://github.com/crystal-processes/crp-sample-upgrade-
                 () -> taskService.complete(assessEventTask.getId(), Map.of("amount", 5))
         ).isInstanceOf(FlowableException.class)
                 .hasMessage("Couldn't deserialize object in variable 'contract'");
-    }```
+    }
+```
