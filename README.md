@@ -33,7 +33,7 @@ Each module depends on the different `crp-flowable-springboot-sample` version. T
 Detailed description: [HowTo](https://github.com/crystal-processes/crp-sample-upgrade-test?tab=readme-ov-file#prerequisites). 
 
 ## :partly_sunny: Variables with java serialization
-I do not expect somebody use java serialization for variables. [Why not example](docs/02_variables/01_serializable.md)
+I do not expect somebody uses java serialization for variables. [Why not example](docs/02_variables/01_serializable.md)
 
 ## :partly_sunny: Json variables
 Json variables are commonly used. The variable structure and operations on the variable instance are tighten together 

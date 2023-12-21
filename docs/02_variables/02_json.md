@@ -1,10 +1,11 @@
 ### Use case:
 
-Let's take the [same use case](01_serializable.md). The `contract.account` has changed from simple `String` value to complex structure.
+Let's take the [same use case](01_serializable.md). The `contract.account` has changed from simple `String` value to complex `Acount`
+structure.
 
 ![insurance event process](../images/insuranceEventProcess.png)
 
-The difference is only in the `contract` variable instantiated in `Get Contract` service task.
+The difference is only in the `contract` variable instantiated in `GetContract` service task.
 Initial contract structure in `v0.2.2`:
 ```json
 {
@@ -12,10 +13,9 @@ Initial contract structure in `v0.2.2`:
   "maxAmount": 10000
 }
 ```
-`Send money` service task:
-```xml
-<serviceTask id="sendMoneyServiceTask" name="Send money" flowable:expression="${moneyService.sendMoney(contract.account, amount)}"/>
-```
+`Send money` service task [P002-processInsuranceEvent v0.2.2](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/23b3ae07264a981fcb19b95303232c753906cd06/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16):
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/23b3ae07264a981fcb19b95303232c753906cd06/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16-L16
 
 Is changed to `v0.2.3`:
 ```json
@@ -24,10 +24,10 @@ Is changed to `v0.2.3`:
   "maxAmount": 10000
 }
 ```
-`Send money` service task uses following expression:
-```xml
-<serviceTask id="sendMoneyServiceTask" name="Send money" flowable:expression="${moneyService.sendMoney(contract.account.id, amount)}"/>
-```
+`Send money` service task uses following expression [P002-processInsuranceEvent v0.2.3](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/945b354684623ff23e39d1803ab96dcff0a226f8/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16)::
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/945b354684623ff23e39d1803ab96dcff0a226f8/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16-L16
+
 The tests works fine in:
 [versioning upgrade project](https://github.com/crystal-processes/crp-sample-upgrade-test)
 ```shell
@@ -49,6 +49,7 @@ If the operation on structure is outside the process model, we are in the simila
 **Example:**
 Create a report with
 
-| account (accountId) | Amount sent |
-|---------------------|-------------|
+| account | Amount sent |
+|---------|-------------|
 
+where account is `account id`.
