@@ -37,5 +37,5 @@ I do not expect somebody uses java serialization for variables. [Why not example
 
 ## :partly_sunny: Json variables
 Json variables are commonly used. The variable structure and operations on the variable instance are tighten together 
-in the process model. If the operation on structure is outside the process model, 
+in the process model. If the operation on structure is outside the process model, the
 [problem is similar](docs/02_variables/02_json.md).

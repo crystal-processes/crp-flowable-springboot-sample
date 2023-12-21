@@ -1,6 +1,6 @@
 ### Use case:
 
-Let's take the [same use case](01_serializable.md). The `contract.account` has changed from simple `String` value to complex `Acount`
+Let's take the [same use case](01_serializable.md). The `contract.account` has changed from simple `String` value to complex `Account`
 structure.
 
 ![insurance event process](../images/insuranceEventProcess.png)
@@ -46,6 +46,7 @@ https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/2fe6220
 ### :warning: Problem
 If the operation on structure is outside the process model, we are in the similar trouble as in 
 [java serialization](01_serializable.md#warning-problem).
+
 **Example:**
 Create a report with
 
