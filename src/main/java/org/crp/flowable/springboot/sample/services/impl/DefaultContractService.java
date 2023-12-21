@@ -18,7 +18,7 @@ public class DefaultContractService implements ContractService {
     public JsonNode getContract(String contractId) {
         try {
             return objectMapper.readTree("{" +
-                    "\"account\" : \"ABCD-123456789\"," +
+                    "\"account\" : { \"owner\" : \"jlong\", \"id\":\"ABCD-123456789\" }," +
                     "\"maxAmount\": 10000" +
                     "}");
         } catch (JsonProcessingException e) {
