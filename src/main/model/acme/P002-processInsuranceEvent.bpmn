@@ -13,7 +13,7 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </userTask>
-    <serviceTask id="sendMoneyServiceTask" name="Send money" flowable:expression="${moneyService.sendMoney(contract.account.id, amount)}">
+    <serviceTask id="sendMoneyServiceTask" name="Send money" flowable:expression="${moneyService.sendMoney(contract.account, amount)}">
       <extensionElements>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>

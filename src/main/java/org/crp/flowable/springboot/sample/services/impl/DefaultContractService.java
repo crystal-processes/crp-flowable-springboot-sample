@@ -1,18 +1,28 @@
 package org.crp.flowable.springboot.sample.services.impl;
 
-import org.crp.flowable.springboot.sample.entities.Account;
-import org.crp.flowable.springboot.sample.entities.Contract;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.crp.flowable.springboot.sample.services.ContractService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * "Mock" contract service implementation.
  */
 public class DefaultContractService implements ContractService {
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
-    public Contract getContract(String contractId) {
-        return Contract.builder().id(contractId).account(
-                Account.builder().owner("jlong").id("ABCD-123456789").build()
-        ).maxAmount(10_000).build();
+    public JsonNode getContract(String contractId) {
+        try {
+            return objectMapper.readTree("{" +
+                    "\"account\" : \"ABCD-123456789\"," +
+                    "\"maxAmount\": 10000" +
+                    "}");
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
