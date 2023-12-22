@@ -1,6 +1,6 @@
 ### Use case:
 
-Let's take the [same use case](01_serializable.md). The `contract.account` has changed from simple `String` value to complex `Account`
+Let's take the [same use case](01_serializable.md) with JSON serialization. The `contract.account` has changed from simple `String` value to complex `Account`
 structure.
 
 ![insurance event process](../images/insuranceEventProcess.png)
