@@ -47,10 +47,20 @@ https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/2fe6220
 If the operation on structure is outside the process model, we are in the similar trouble as in 
 [java serialization](01_serializable.md#warning-problem).
 
-**Example:**
+**Task:**
 Create a report with
 
 | account | Amount sent |
 |---------|-------------|
 
 where account is `account id`.
+
+**Solution proposal:**
+A `reportService` fetches all process instances from the history with variables:
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/876dff9ca130480c6c046dd24a909832edc467c3/src/main/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportService.java#L77-L78
+
+and map each process instance to the json object. The most current version needs only `contract.account.id`. 
+The code to support all contract formats is:
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/876dff9ca130480c6c046dd24a909832edc467c3/src/main/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportService.java#L42-L68
+
+We will need ordering and grouping and the problem grows.
