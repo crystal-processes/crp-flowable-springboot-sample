@@ -17,10 +17,11 @@ public class DefaultContractService implements ContractService {
     @Override
     public JsonNode getContract(String contractId) {
         try {
-            return objectMapper.readTree("{" +
-                    "\"account\" : { \"owner\" : \"jlong\", \"id\":\"ABCD-123456789\" }," +
-                    "\"maxAmount\": 10000" +
-                    "}");
+            return objectMapper.readTree("""
+                    {
+                    "account" : { "owner" : "jlong", "id":"ABCD-123456789" },
+                    "maxAmount": 10000
+                    }""");
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
