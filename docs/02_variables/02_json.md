@@ -63,4 +63,12 @@ and map each process instance to the json object. The most current version needs
 The code to support all contract formats is:
 https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/876dff9ca130480c6c046dd24a909832edc467c3/src/main/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportService.java#L42-L68
 
-We will need ordering and grouping and the problem grows.
+We will need ordering and grouping and the problem grows. You can find more details about:
+- How to reproduce the issue
+ https://github.com/crystal-processes/crp-sample-upgrade-test/blob/aef07259a67166f5d0e2c052bd11217871eebaad/run_test.sh#L38-L45
+- How to test serialization for all supported formats
+ https://github.com/crystal-processes/crp-sample-upgrade-test/blob/aef07259a67166f5d0e2c052bd11217871eebaad/release-0.2.4/src/test/java/org/crp/flowable/springboot/sample/upgrade/ReportTest.java#L21-L25
+- How to test current version 
+ https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/26460e9bfa316b5d90b1f1ee9992cb6668ecddad/src/test/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportServiceTest.java#L39-L59
+
+
