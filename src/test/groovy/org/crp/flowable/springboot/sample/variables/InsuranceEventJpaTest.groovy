@@ -1,7 +1,6 @@
 package org.crp.flowable.springboot.sample.variables
 
 import org.crp.flowable.springboot.sample.AcmeApplicationTest
-import org.crp.flowable.springboot.sample.entities.jpa.AccountRepository
 import org.crp.flowable.springboot.sample.entities.jpa.ContractEntity
 import org.crp.flowable.springboot.sample.entities.jpa.ContractRepository
 import org.flowable.engine.RuntimeService
@@ -22,8 +21,6 @@ class InsuranceEventJpaTest {
     RuntimeService runtimeService
     @Autowired
     TaskService taskService
-    @Autowired
-    AccountRepository accountRepository
     @Autowired
     ContractRepository contractRepository
 
