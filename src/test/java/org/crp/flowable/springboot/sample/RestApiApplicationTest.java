@@ -46,7 +46,7 @@ public class RestApiApplicationTest {
         assert processDefinitions != null;
         assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
                 .extracting(ProcessDefinitionResponse::getKey)
-                .containsExactlyInAnyOrder("P001-helloWorld", "P002-processInsuranceEvent");
+                .containsExactlyInAnyOrder("P001-helloWorld", "P002-processInsuranceEvent", "P003-jpaProcessInsuranceEvent");
     }
 
     @Test
