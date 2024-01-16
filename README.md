@@ -40,8 +40,8 @@ Json variables are commonly used. The variable structure and operations on the v
 in the process model. If the operation on structure is outside the process model, the
 [problem is similar](docs/02_variables/02_json.md).
 
-## :partly_sunny: [JPA variables](https://www.flowable.com/open-source/docs/bpmn/ch09-JPA)
-JPA variables do not store data directly in the process. The process stores only a reference to jpa entity. Where is 
+## :partly_sunny: JPA variables
+[JPA variables](https://www.flowable.com/open-source/docs/bpmn/ch09-JPA) do not store data directly in the process. The process stores only a reference to jpa entity. Where is 
 the [problem](docs/02_variables/03_jpaVariables.md) now?
 
 [//]: # (## The only good variable)
