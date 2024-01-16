@@ -39,3 +39,18 @@ I do not expect somebody uses java serialization for variables. [Why not example
 Json variables are commonly used. The variable structure and operations on the variable instance are tighten together 
 in the process model. If the operation on structure is outside the process model, the
 [problem is similar](docs/02_variables/02_json.md).
+
+## :partly_sunny: [JPA variables](https://www.flowable.com/open-source/docs/bpmn/ch09-JPA)
+JPA variables do not store data directly in the process. The process stores only a reference to jpa entity. Where is 
+the [problem](docs/02_variables/03_jpaVariables.md) now?
+
+[//]: # (## The only good variable)
+
+[//]: # (To make long story short: The concept of fetching contract before the user task is wrong. The process variable is created )
+
+[//]: # (only to pass values to the user task and service task in the process execution. The process execution does not need any)
+
+[//]: # (contract. The process must not store application data.)
+
+[//]: # ([long story now]&#40;docs/02_variables/04_onlyGoodVariable.md&#41;)
+
