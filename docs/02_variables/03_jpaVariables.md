@@ -33,6 +33,10 @@ Liquibase is used for the database schema management. The only necessary think i
 spring.liquibase.enabled=true
 spring.liquibase.change-log=config/liquibase/app-change-log.xml
 ```
+Flowable allows us to store Jpa entities as process variables. As you can see in the following groovy test.
 
-And now let's do the same change request as before. The `contract.account` has changed from simple `String` value to 
-complex `Account` structure.
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/bd426076176f76b9130a20df462ebbafe6361f83/src/test/groovy/org/crp/flowable/springboot/sample/variables/InsuranceEventJpaTest.groovy#L47-L61
+
+The flowable stores only a reference variable in the flowable structures. The variable value is stored in the database 
+table, which makes reporting much easier. So how will the database table cope with the same change request as before.
+The `contract.account` has changed from simple `String` value to complex `Account` structure.
