@@ -1,6 +1,8 @@
 package org.crp.flowable.springboot.sample.variables
 
 import org.crp.flowable.springboot.sample.AcmeApplicationTest
+import org.crp.flowable.springboot.sample.entities.jpa.AccountEntity
+import org.crp.flowable.springboot.sample.entities.jpa.AccountRepository
 import org.crp.flowable.springboot.sample.entities.jpa.ContractEntity
 import org.crp.flowable.springboot.sample.entities.jpa.ContractRepository
 import org.flowable.engine.RuntimeService
@@ -23,19 +25,27 @@ class InsuranceEventJpaTest {
     TaskService taskService
     @Autowired
     ContractRepository contractRepository
+    @Autowired
+    AccountRepository accountRepository
 
     @BeforeEach
     void 'initialize entities'() {
+        def accountEntity = accountRepository.save(AccountEntity.builder()
+                .number("1234567")
+                .owner('jlong')
+                .build()
+        )
         contractRepository.save(
         ContractEntity.builder()
                 .maxAmount(10000)
                 .contractId('testContractId')
-                .account("1234567").build()
+                .account(accountEntity).build()
         )
     }
 
     @AfterEach
     void 'remove entities'() {
+        accountRepository.deleteAll()
         contractRepository.deleteAll()
     }
 

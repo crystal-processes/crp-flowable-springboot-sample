@@ -15,4 +15,37 @@
             <column name="max_amount" type="int"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="2" author="martin.grofcik" >
+        <createTable tableName="APP_ACCOUNT">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="number" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="owner" type="varchar(255)"/>
+        </createTable>
+
+        <sql>
+            <![CDATA[
+        INSERT INTO APP_ACCOUNT (number, owner)
+        SELECT account, 'jlong'
+        FROM APP_CONTRACT;
+        ]]>
+        </sql>
+
+        <addColumn tableName="APP_CONTRACT">
+            <column name="account_id" type="int"/>
+        </addColumn>
+
+        <sql>
+            <![CDATA[
+        UPDATE APP_CONTRACT SET ACCOUNT_ID = (SELECT id FROM APP_ACCOUNT AS ACC WHERE ACC.NUMBER = ACCOUNT);
+        ]]>
+        </sql>
+
+        <dropColumn tableName="APP_CONTRACT" columnName="account"/>
+
+    </changeSet>
 </databaseChangeLog>
