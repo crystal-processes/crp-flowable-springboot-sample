@@ -40,3 +40,55 @@ https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/bd42607
 The flowable stores only a reference variable in the flowable structures. The variable value is stored in the database 
 table, which makes reporting much easier. So how will the database table cope with the same change request as before.
 The `contract.account` has changed from simple `String` value to complex `Account` structure.
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/java/org/crp/flowable/springboot/sample/entities/jpa/AccountEntity.java#L15-L28
+
+The contract is changed accordingly:
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/java/org/crp/flowable/springboot/sample/entities/jpa/ContractEntity.java#L21-L23
+
+The change in the data structure requires the change in the process model:
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/model/acme/P003-jpaProcessInsuranceEvent.bpmn#L16-L17
+
+The data are migrated in the change log:
+
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/resources/config/liquibase/app-change-log.xml#L19-L48
+
+
+:warning: **"All" [tests]() work fine. Even our upgrade test from the version 0.2.5 to 0.2.6 works fine:**
+```java
+    @Test
+    void continueInV1InsuranceEventProcessInstance(){
+            ProcessInstance processInsuranceEvent=runtimeService.createProcessInstanceQuery()
+                .processInstanceName("Insurance event process instance from release 0.2.5")
+                .singleResult();
+            Task assessEventTask=taskService.createTaskQuery().processInstanceId(processInsuranceEvent.getId()).singleResult();
+            taskService.complete(assessEventTask.getId(),Map.of("amount",5));
+
+            assertThat(processInsuranceEvent).doesNotExist()
+                .inHistory().isFinished()
+                .hasVariableWithValue("amount",5);
+    }
+```
+**The problem is**, that money was not sent to the right account. The expectation is to send to account `1234567` amount of `5`.
+```java
+   Mockito.verify(moneyService, times(1)).sendMoney("1234567", 5);
+```
+The assertion throws a following exception:
+```shell
+[ERROR] Failures:
+[ERROR]   ContinueInJpaInsuranceEventProcessTest.continueInV1InsuranceEventProcessInstance:49
+Argument(s) are different! Wanted:
+moneyService bean.sendMoney(
+    "1234567",
+    5
+);
+-> at org.crp.flowable.springboot.sample.upgrade.ContinueInJpaInsuranceEventProcessTest.continueInV1InsuranceEventProcessInstance(ContinueInJpaInsuranceEventProcessTest.java:49)
+Actual invocations have different arguments at position [0]:
+moneyService bean.sendMoney(
+    "org.crp.flowable.springboot.sample.entities.jpa.AccountEntity@7b9c6e78",
+    5
+);
+```
+The amount is sent to `toString()` output of `AccountEntity@7b9c6e78` instance instead of account number `1234567`.
