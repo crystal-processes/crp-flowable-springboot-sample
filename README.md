@@ -44,13 +44,7 @@ in the process model. If the operation on structure is outside the process model
 [JPA variables](https://www.flowable.com/open-source/docs/bpmn/ch09-JPA) do not store data directly in the process. The process stores only a reference to jpa entity. Where is 
 the [problem](docs/02_variables/03_jpaVariables.md) now?
 
-[//]: # (## The only good variable)
+## The only good variable
 
-[//]: # (To make long story short: The concept of fetching contract before the user task is wrong. The process variable is created )
-
-[//]: # (only to pass values to the user task and service task in the process execution. The process execution does not need any)
-
-[//]: # (contract. The process must not store application data.)
-
-[//]: # ([long story now]&#40;docs/02_variables/04_onlyGoodVariable.md&#41;)
+Flowable allows to create variables easily. The problems described above are only small sample. The [rules to follow](docs/02_variables/04_onlyGoodVariable.md).
 

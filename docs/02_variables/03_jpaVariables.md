@@ -92,3 +92,6 @@ moneyService bean.sendMoney(
 );
 ```
 The amount is sent to `toString()` output of `AccountEntity@7b9c6e78` instance instead of account number `1234567`.
+([complete test](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/006d9334f4da618a949e9fefb98bc1b10b047c00/release-0.2.6/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInJpaInsuranceEventProcessTest.java#L36)) 
+
+To solve the problem, the only way which we access data outside the model versioning is to use services.    
