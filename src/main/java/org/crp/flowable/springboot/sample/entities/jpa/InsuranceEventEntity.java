@@ -5,24 +5,25 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "APP_CONTRACT"
+        name = "APP_INSURANCE_EVENT"
 )
 @Builder @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
-public class ContractEntity {
+public class InsuranceEventEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "APP_CONTRACT_SEQ")
     @SequenceGenerator(name="APP_CONTRACT_SEQ", allocationSize = 1)
     private Integer id;
 
-    private String contractId;
+    @ManyToOne
+    @PrimaryKeyJoinColumn(name="INVOLVED_CONTRACT")
+    private  ContractEntity involvedContract;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn(name = "id")
-    private AccountEntity account;
+    private int amountRequested;
+    private Integer amountAssessed;
 
-    private int maxAmount;
+    private String description;
 }
 
 

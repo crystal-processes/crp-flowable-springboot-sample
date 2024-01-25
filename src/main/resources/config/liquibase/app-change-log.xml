@@ -46,6 +46,18 @@
         </sql>
 
         <dropColumn tableName="APP_CONTRACT" columnName="account"/>
+        <addNotNullConstraint tableName="APP_CONTRACT" columnName="account_id"/>
+    </changeSet>
 
+    <changeSet id="3" author="martin.grofcik" >
+        <createTable tableName="APP_INSURANCE_EVENT">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)"/>
+            <column name="involved_contract_id" type="int"/>
+            <column name="amount_requested" type="int"/>
+            <column name="amount_assessed" type="int"/>
+        </createTable>
     </changeSet>
 </databaseChangeLog>

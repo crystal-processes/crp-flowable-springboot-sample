@@ -36,3 +36,6 @@ The next refactoring step after the `GetCOntract` task removal, is removal of `a
 transient. The transient variable is not necessary, if the `amount` as application data is stored outside the process 
 instance.
 
+Let's have the luxury to start again for the 3-rd time.
+
+
