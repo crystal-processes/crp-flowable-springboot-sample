@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional
 import org.crp.flowable.springboot.sample.AcmeApplicationTest
 import org.crp.flowable.springboot.sample.entities.jpa.*
 import org.crp.flowable.springboot.sample.services.MoneyService
+import org.flowable.common.engine.api.FlowableObjectNotFoundException
 import org.flowable.engine.RuntimeService
 import org.flowable.engine.TaskService
 import org.flowable.engine.runtime.ProcessInstance
@@ -78,5 +79,13 @@ class InsuranceEventJpaServicesTest {
         assertThatInsuranceEventProcess.doesNotExist()
                 .inHistory().isFinished()
         Mockito.verify(moneyService, times(1)).sendMoney("1234567", 5)
+        assertThat(getInsuranceEvent(insuranceEventProcess).amountAssessed).isEqualTo(5)
+    }
+
+    InsuranceEventEntity getInsuranceEvent(ProcessInstance insuranceEventProcess) {
+        def insuranceEventId = insuranceEventProcess.getProcessVariables().get("insuranceEventId") as Integer
+        insuranceEventRepository.findById(insuranceEventId).orElseThrow {
+            new FlowableObjectNotFoundException("Insurance event $insuranceEventId not found")
+        }
     }
 }
