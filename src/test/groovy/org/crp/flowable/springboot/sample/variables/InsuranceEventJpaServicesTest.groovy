@@ -2,12 +2,7 @@ package org.crp.flowable.springboot.sample.variables
 
 import jakarta.transaction.Transactional
 import org.crp.flowable.springboot.sample.AcmeApplicationTest
-import org.crp.flowable.springboot.sample.entities.jpa.AccountEntity
-import org.crp.flowable.springboot.sample.entities.jpa.AccountRepository
-import org.crp.flowable.springboot.sample.entities.jpa.ContractEntity
-import org.crp.flowable.springboot.sample.entities.jpa.ContractRepository
-import org.crp.flowable.springboot.sample.entities.jpa.InsuranceEventEntity
-import org.crp.flowable.springboot.sample.entities.jpa.InsuranceEventRepository
+import org.crp.flowable.springboot.sample.entities.jpa.*
 import org.crp.flowable.springboot.sample.services.MoneyService
 import org.flowable.engine.RuntimeService
 import org.flowable.engine.TaskService
@@ -50,7 +45,7 @@ class InsuranceEventJpaServicesTest {
         )
         contractRepository.save(
         ContractEntity.builder()
-                .maxAmount(10000)
+                .maxAmount(10_000)
                 .contractId('testContractId')
                 .account(accountEntity).build()
         )
@@ -73,13 +68,14 @@ class InsuranceEventJpaServicesTest {
                     'eventDescription': 'I broke my leg.'])
                 .start()
 
-        assertThat(insuranceEventProcess).isRunning()
+        def assertThatInsuranceEventProcess = assertThat(insuranceEventProcess)
+        assertThatInsuranceEventProcess.isRunning()
                 .userTasks().extracting('name').containsExactly('Assess event')
 
         Task assessmentTask = taskService.createTaskQuery().processInstanceId(insuranceEventProcess.getId()).includeProcessVariables().singleResult()
-        taskService.complete(assessmentTask.getId(), null, ['amountAssessed' : 5])
+        taskService.complete(assessmentTask.getId(), null, ['amount' : 5])
 
-        assertThat(insuranceEventProcess).doesNotExist()
+        assertThatInsuranceEventProcess.doesNotExist()
                 .inHistory().isFinished()
         Mockito.verify(moneyService, times(1)).sendMoney("1234567", 5)
     }
