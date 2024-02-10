@@ -45,6 +45,8 @@ The second change is in `Send money` task.
 
 https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/fcc88c803e84d11530878be8e940ddc61f162ed4/src/main/model/acme/P003-jpaProcessInsuranceEvent.bpmn#L16-L16
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/fcc88c803e84d11530878be8e940ddc61f162ed4/src/main/model/acme/P004-jpaServicesProcessInsuranceEvent.bpmn#L22-L22
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/a2f8422a02445a4cdabcba4c1d913d11c1d725fd/src/main/model/acme/P004-jpaServicesProcessInsuranceEvent.bpmn#L22-L22
 
-The service call `${insuranceEventService.sendMoney(insuranceEventId, amount)}` gives us 
+The service call `${insuranceEventService.sendMoney(insuranceEventId, amount)}` is independent of the data format changes.
+The complete groovy test looks like:
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/5fec9763027479a6482d887be74481b28463309a/src/test/groovy/org/crp/flowable/springboot/sample/variables/InsuranceEventJpaServicesTest.groovy#L63-L83
