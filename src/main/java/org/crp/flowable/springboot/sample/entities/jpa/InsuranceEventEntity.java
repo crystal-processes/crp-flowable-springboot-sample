@@ -3,6 +3,8 @@ package org.crp.flowable.springboot.sample.entities.jpa;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static jakarta.persistence.CascadeType.MERGE;
+
 @Entity
 @Table(
         name = "APP_INSURANCE_EVENT"
@@ -16,9 +18,9 @@ public class InsuranceEventEntity {
     @SequenceGenerator(name="APP_CONTRACT_SEQ", allocationSize = 1)
     private Integer id;
 
-    @ManyToOne
-    @PrimaryKeyJoinColumn(name="INVOLVED_CONTRACT")
-    private  ContractEntity involvedContract;
+    @ManyToOne(cascade = MERGE)
+    @PrimaryKeyJoinColumn(name="INVOLVED_CONTRACT_ID")
+    private ContractEntity involvedContract;
 
     private int amountRequested;
     private Integer amountAssessed;

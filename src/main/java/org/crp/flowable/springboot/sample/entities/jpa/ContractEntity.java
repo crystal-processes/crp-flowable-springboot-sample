@@ -3,6 +3,9 @@ package org.crp.flowable.springboot.sample.entities.jpa;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static jakarta.persistence.CascadeType.ALL;
+import static jakarta.persistence.CascadeType.MERGE;
+
 @Entity
 @Table(
         name = "APP_CONTRACT"
@@ -18,7 +21,7 @@ public class ContractEntity {
 
     private String contractId;
 
-    @OneToOne
+    @ManyToOne(cascade = MERGE)
     @PrimaryKeyJoinColumn(name = "id")
     private AccountEntity account;
 
