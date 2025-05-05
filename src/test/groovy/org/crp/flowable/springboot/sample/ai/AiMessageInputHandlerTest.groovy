@@ -36,7 +36,7 @@ class AiMessageInputHandlerTest {
             .withConfiguration(GreenMailConfiguration.aConfig()
                     .withUser("request@acme.com", "acme", "test")
                     .withUser("homer.simpson@localhost", "homer", "test"))
-            .withPerMethodLifecycle(false);
+            .withPerMethodLifecycle(false)
 
     @Autowired
     ChatClient chatClient
@@ -99,7 +99,7 @@ class AiMessageInputHandlerTest {
         Awaitility.await("mail was sent.")
                 .timeout(Duration.ofSeconds(10)).until(
                 () -> {
-                    def messages = AiMessageInputHandlerTest.greenMail.getReceivedMessagesForDomain("localhost")
+                    def messages = greenMail.getReceivedMessagesForDomain("localhost")
                     messages.size() > 0 && messages[0].getFrom()[0].toString().equals('request@acme.com')
                 }
         )
@@ -125,13 +125,13 @@ class AiMessageInputHandlerTest {
         Awaitility.await("mail was sent.")
                 .timeout(Duration.ofSeconds(10)).until(
                 () -> {
-                    def messages = AiMessageInputHandlerTest.greenMail.getReceivedMessagesForDomain("localhost")
+                    def messages = greenMail.getReceivedMessagesForDomain("localhost")
                     messages.size() > 0 && messages[0].getFrom()[0].toString().equals('request@acme.com')
                 }
         )
 
     }
-    private void setGreenMailUsers() {
+    private static void setGreenMailUsers() {
         greenMail.setUser('request@acme.com', 'acme', 'test')
         greenMail.setUser('homer.simpson@localhost', 'homer.simson', 'test')
     }
