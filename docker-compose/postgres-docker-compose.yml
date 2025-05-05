@@ -1,8 +1,7 @@
 # Use postgres/example user/password credentials
-version: '3.1'
+version: '3.8'
 
 services:
-
   db:
     image: postgres
     restart: always
@@ -12,3 +11,28 @@ services:
       POSTGRES_DB: flowable
     ports:
       - "5432:5432"
+
+  greenmail:
+    image: greenmail/standalone:1.6.5
+    environment:
+      - JAVA_OPTS=-Dgreenmail.verbose
+    ports:
+      - 3025:3025 # SMTP
+      - 3110:3110 # POP3
+      - 3143:3143 # IMAP
+      - 3465:3465 # SMTPS
+      - 3993:3993 # IMAPS
+      - 3995:3995 # POP3S
+      - 7080:8080 # API
+
+  roundcube:
+    image: roundcube/roundcubemail:latest
+    depends_on:
+      - greenmail
+    ports:
+      - "127.0.0.1:8000:80"
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=greenmail  # IMAP server - tls:// prefix for STARTTLS, ssl:// for SSL/TLS
+      - ROUNDCUBEMAIL_DEFAULT_PORT=3143       # IMAP port
+      - ROUNDCUBEMAIL_SMTP_SERVER=greenmail   # SMTP server - tls:// prefix for STARTTLS, ssl:// for SSL/TLS
+      - ROUNDCUBEMAIL_SMTP_PORT=3025          # SMTP port

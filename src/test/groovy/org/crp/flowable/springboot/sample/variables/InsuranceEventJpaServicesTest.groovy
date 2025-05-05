@@ -64,7 +64,7 @@ class InsuranceEventJpaServicesTest {
     void 'end to end with jpa object and services'() {
         ProcessInstance insuranceEventProcess = runtimeService.createProcessInstanceBuilder()
                 .processDefinitionKey("P004-jpaServicesProcessInsuranceEvent")
-                .transientVariables(['contractId':'testContractId',
+                .transientVariables('input': ['contractId':'testContractId',
                     'requestedAmount': 10, 
                     'eventDescription': 'I broke my leg.'])
                 .start()

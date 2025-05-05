@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:design="http://flowable.org/design" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test" design:palette="flowable-work-process-palette">
+  <process id="P005-aiMessageInputHandler" name="P005 Ai message input handler" isExecutable="true" flowable:candidateStarterGroups="flowableUser">
+    <extensionElements>
+      <design:stencilid><![CDATA[BPMNDiagram]]></design:stencilid>
+      <design:creationdate><![CDATA[2025-04-09T08:57:55.393Z]]></design:creationdate>
+      <design:modificationdate><![CDATA[2025-04-09T09:17:57.528Z]]></design:modificationdate>
+    </extensionElements>
+    <serviceTask id="ServiceTask_1" flowable:class="org.crp.flowable.ai.delegates.ChatClientJavaDelegate">
+      <extensionElements>
+        <flowable:element-name>Identify processes to start</flowable:element-name>
+        <flowable:field name="chatClient">
+          <flowable:expression><![CDATA[${chatClient}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="system">
+          <flowable:expression><![CDATA[You are a service to process input email messages in the insurance company.
+          Your task is to identify processes to start based on the email message in the user input. The list of allowed processes to start are:
+
+          processDefinitionKey: P004-jpaServicesProcessInsuranceEvent
+          description: The process to inform about a new insurance event.
+          mandatory input parameters: contractId - string, requestedAmount - positive number, eventDescription - string human readable description of the event.
+
+          processDefinitionKey: P005-addressChange
+          description: Update the residence information.
+          mandatory input parameters: customerId - string, street, city, postalCode).
+
+          processDefinitionKey: P006-offerNewInsuranceProduct
+          description: Offer a new product from our portfolio.
+          mandatory input parameters: contact - any contact to the person, type - the possibilities are 'Life insurance', 'Home insurance', 'Car insurance', 'Health insurance'.
+
+          if the mandatory input parameters are not complete, ask for them in the responseEmail with missing input parameters and description. The responseEmail, should contain list of identified processes with the inputs
+          and potential processes to start with the mandatory inputs. Adjust processes to start to the current user context.
+          The output is JSON string with the following structure:
+          {
+            'identifiedProcesses': [
+                {'processDefinitionKey' : 'P004-jpaServicesProcessInsuranceEvent',
+                 'input': {
+                     'contractId':'XYZ',
+                     'requestedAmount': 10,
+                     'eventDescription', 'During the daily jogging I broke my leg.`'
+                 }
+                }
+            ],
+            'responseEmail': 'sample email body'
+          }
+          ]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="user">
+          <flowable:expression><![CDATA[from:${message.from[0]}, Subject:${message.subject}, Body: ${message.body}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="structuredOutputConverter">
+          <flowable:expression><![CDATA[${jsonOutputConverter}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="resultVariableName">
+          <flowable:expression><![CDATA[processedInput]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+    <callActivity id="createIdentifiedProcesses" name="Create identified processes" calledElement="${identifiedProcess.processDefinitionKey}" flowable:sameDeployment="true" flowable:fallbackToDefaultTenant="true">
+      <extensionElements>
+        <flowable:in sourceExpression="${identifiedProcess.input}" target="input"></flowable:in>
+        <flowable:in sourceExpression="${message.from}" target="initiator"></flowable:in>
+        <design:stencilid><![CDATA[CallActivity]]></design:stencilid>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="${processedInput.identifiedProcesses}" flowable:elementVariable="identifiedProcess">
+        <extensionElements></extensionElements>
+      </multiInstanceLoopCharacteristics>
+    </callActivity>
+    <serviceTask id="sendConfirmationEmail" name="Send an email with confirmation" flowable:type="mail">
+      <extensionElements>
+        <flowable:field name="to">
+          <flowable:expression><![CDATA[${message.from}]]></flowable:expression>
+        </flowable:field>
+        <flowable:field name="from">
+          <flowable:string><![CDATA[request@acme.com]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="subject">
+          <flowable:string><![CDATA[Re: $subject]]></flowable:string>
+        </flowable:field>
+        <flowable:field name="text">
+          <flowable:expression><![CDATA[${processedInput.responseEmail}]]></flowable:expression>
+        </flowable:field>
+        <design:stencilid><![CDATA[EmailTask]]></design:stencilid>
+        <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
+      </extensionElements>
+    </serviceTask>
+    <parallelGateway id="ParallelGateway_11">
+      <extensionElements>
+        <design:stencilid><![CDATA[ParallelGateway]]></design:stencilid>
+      </extensionElements>
+    </parallelGateway>
+    <parallelGateway id="ParallelGateway_15">
+      <extensionElements>
+        <design:stencilid><![CDATA[ParallelGateway]]></design:stencilid>
+      </extensionElements>
+    </parallelGateway>
+    <startEvent id="messageInputStart" flowable:initiator="initiator" flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:work-form-field-validation><![CDATA[false]]></flowable:work-form-field-validation>
+        <design:stencilid><![CDATA[StartNoneEvent]]></design:stencilid>
+      </extensionElements>
+    </startEvent>
+    <endEvent id="messageInputEnd">
+      <extensionElements>
+        <design:stencilid><![CDATA[EndNoneEvent]]></design:stencilid>
+      </extensionElements>
+    </endEvent>
+    <sequenceFlow id="SequenceFlow_13" sourceRef="ServiceTask_1" targetRef="ParallelGateway_11">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_10" sourceRef="createIdentifiedProcesses" targetRef="ParallelGateway_15">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_12" sourceRef="sendConfirmationEmail" targetRef="ParallelGateway_15">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_14" sourceRef="ParallelGateway_11" targetRef="createIdentifiedProcesses">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_17" sourceRef="ParallelGateway_11" targetRef="sendConfirmationEmail">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_16" sourceRef="ParallelGateway_15" targetRef="messageInputEnd">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_2" sourceRef="messageInputStart" targetRef="ServiceTask_1">
+      <extensionElements>
+        <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
+      </extensionElements>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P005-aiMessageInputHandler">
+    <bpmndi:BPMNPlane bpmnElement="P005-aiMessageInputHandler" id="BPMNPlane_P005-aiMessageInputHandler">
+      <bpmndi:BPMNShape bpmnElement="ServiceTask_1" id="BPMNShape_ServiceTask_1">
+        <omgdc:Bounds height="80.0" width="100.0" x="433.0" y="236.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createIdentifiedProcesses" id="BPMNShape_createIdentifiedProcesses">
+        <omgdc:Bounds height="80.0" width="100.0" x="664.0" y="114.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sendConfirmationEmail" id="BPMNShape_sendConfirmationEmail">
+        <omgdc:Bounds height="80.0" width="100.0" x="664.0" y="357.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="ParallelGateway_11" id="BPMNShape_ParallelGateway_11">
+        <omgdc:Bounds height="40.0" width="40.0" x="589.0" y="256.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="ParallelGateway_15" id="BPMNShape_ParallelGateway_15">
+        <omgdc:Bounds height="40.0" width="40.0" x="783.0" y="256.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="messageInputStart" id="BPMNShape_messageInputStart">
+        <omgdc:Bounds height="30.0" width="30.0" x="361.0" y="261.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="messageInputEnd" id="BPMNShape_messageInputEnd">
+        <omgdc:Bounds height="28.0" width="28.0" x="974.0" y="262.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_16" id="BPMNEdge_SequenceFlow_16" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
+        <omgdi:waypoint x="823.0" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="974.0" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_17" id="BPMNEdge_SequenceFlow_17" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="609.0" y="296.0"></omgdi:waypoint>
+        <omgdi:waypoint x="609.0" y="397.0"></omgdi:waypoint>
+        <omgdi:waypoint x="664.0" y="397.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_12" id="BPMNEdge_SequenceFlow_12" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+        <omgdi:waypoint x="764.0" y="397.0"></omgdi:waypoint>
+        <omgdi:waypoint x="803.0" y="397.0"></omgdi:waypoint>
+        <omgdi:waypoint x="803.0" y="296.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_13" id="BPMNEdge_SequenceFlow_13" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+        <omgdi:waypoint x="533.0" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="589.0" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_14" id="BPMNEdge_SequenceFlow_14" flowable:sourceDockerX="20.0" flowable:sourceDockerY="20.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="609.0" y="256.0"></omgdi:waypoint>
+        <omgdi:waypoint x="609.0" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="664.0" y="154.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_10" id="BPMNEdge_SequenceFlow_10" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="20.0" flowable:targetDockerY="20.0">
+        <omgdi:waypoint x="764.0" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="803.0" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="803.0" y="256.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="SequenceFlow_2" id="BPMNEdge_SequenceFlow_2" flowable:sourceDockerX="15.0" flowable:sourceDockerY="15.0" flowable:targetDockerX="50.0" flowable:targetDockerY="40.0">
+        <omgdi:waypoint x="391.0" y="276.0"></omgdi:waypoint>
+        <omgdi:waypoint x="433.0" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,13 @@
+{
+  "identifiedProcesses": [
+    {
+      "processDefinitionKey": "P004-jpaServicesProcessInsuranceEvent",
+      "input": {
+        "contractId": "HI-123421321",
+        "requestedAmount": 200,
+        "eventDescription": "I broke my leg when I moved to my new house in Krakow."
+      }
+    }
+  ],
+  "responseEmail": "Dear Homer,\n\nThank you for your email regarding the health care fee refund. We have identified the following process to initiate:\n\n- Process: Inform about a new insurance event\n  - Contract ID: HI-123421321\n  - Requested Amount: 200 EUR\n  - Event Description: I broke my leg when I moved to my new house in Krakow.\n\nYour request is being processed. If you have any further questions or need additional assistance, please feel free to reach out.\n\nBest regards,\n\nYour Insurance Team"
+}

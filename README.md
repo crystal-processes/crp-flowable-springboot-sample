@@ -2,6 +2,7 @@
 * [Goal:](#goal)
 * [Step 01 - Basic spring boot and model application](#step-01---basic-spring-boot-and-model-application)
 * [Step 02 - Variables](#step-02---variables)
+* [Step 03 - AI](#step-03---ai)
 <!-- TOC -->
 
 # Goal:
@@ -47,4 +48,17 @@ the [problem](docs/02_variables/03_jpaVariables.md) now?
 ## The only good variable
 
 Flowable allows to create variables easily. The problems described above are only small sample. The [rules to follow](docs/02_variables/04_onlyGoodVariable.md).
+
+# Step 03 - AI
+Everybody talks about AI today and flowable is not standing aside. I have seen flowable ai demos (e.g. [Using the Flowable AI agent](https://www.youtube.com/watch?v=qU4lX1sHYrU)) and tutorials
+([ai setup](https://documentation.flowable.com/latest/ai/ai-setup)). All demos I have seen till now are for flowable enterprise 3.17+.
+Remove the buzz and try to do the same with the open source.
+
+## Content recognition & processes
+The common use case is: 
+
+The "acme" insurance company receives an email. The company has to extract information from 
+an unstructured text and start processes based on the content. The sender has to be informed about started processes 
+and their status. 
+[How to replace tedious user tasks with AI?](docs/03_ai/01_emailRecognition.md)
 
