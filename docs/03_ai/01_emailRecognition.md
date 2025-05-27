@@ -8,7 +8,7 @@ The mail listener and message handler are initialized here:
 https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/58f894e01bf73aab6847230d70de3ff61aecbdd5/src/main/java/org/crp/flowable/springboot/sample/AcmeAiConfiguration.java#L19-L33
 
 The `startProcessMessageHandler` is responsible for sending a message to the appropriate process:  
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/58f894e01bf73aab6847230d70de3ff61aecbdd5/src/main/java/org/crp/flowable/springboot/sample/services/impl/StartProcessMessageHandler.java#L35-46
+https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/58f894e01bf73aab6847230d70de3ff61aecbdd5/src/main/java/org/crp/flowable/springboot/sample/services/impl/StartProcessMessageHandler.java#L35-L46
 
 ---
 
