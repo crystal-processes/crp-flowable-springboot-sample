@@ -27,8 +27,7 @@ The chat client task configuration consists of two parts:
 
 1. **`system`** – Describes [the general purpose of the task](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/58f894e01bf73aab6847230d70de3ff61aecbdd5/src/main/model/acme/P005-aiMessageInputHandler.bpmn#L16-L45) in a human-readable way.
 2. **`user`** – Represents the received email data, e.g.:  
-   `from: ${message.from[0]}, subject: ${message.subject}, body: ${message.body}`
-
+   https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/58f894e01bf73aab6847230d70de3ff61aecbdd5/src/main/model/acme/P005-aiMessageInputHandler.bpmn#L49
 ---
 
 ### Input & Output
