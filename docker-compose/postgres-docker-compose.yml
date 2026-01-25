@@ -1,6 +1,4 @@
 # Use postgres/example user/password credentials
-version: '3.8'
-
 services:
   db:
     image: postgres
@@ -36,3 +34,24 @@ services:
       - ROUNDCUBEMAIL_DEFAULT_PORT=3143       # IMAP port
       - ROUNDCUBEMAIL_SMTP_SERVER=greenmail   # SMTP server - tls:// prefix for STARTTLS, ssl:// for SSL/TLS
       - ROUNDCUBEMAIL_SMTP_PORT=3025          # SMTP port
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ollama-data:
+    driver: local

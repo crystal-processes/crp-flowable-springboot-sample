@@ -1,0 +1,61 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- Crystal ball gradient -->
+        <radialGradient id="ballGradient" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#E8F7F1"/>
+            <stop offset="55%" stop-color="#4EC9A8"/>
+            <stop offset="100%" stop-color="#1F9D78"/>
+        </radialGradient>
+    </defs>
+
+    <!-- Crystal Ball Icon -->
+    <g>
+        <!-- Ball -->
+        <circle cx="70" cy="60" r="46"
+                fill="url(#ballGradient)"/>
+
+        <!-- Subtle reflection -->
+        <ellipse cx="52" cy="40" rx="12" ry="9"
+                 fill="#FFFFFF"
+                 opacity="0.2"/>
+
+        <!-- Short horizontal BPMN-style flow -->
+        <line x1="46" y1="60" x2="94" y2="60"
+              stroke="#FFFFFF"
+              stroke-opacity="0.6"
+              stroke-width="2"/>
+
+        <!-- Slightly smaller CRP nodes -->
+        <circle cx="46" cy="60" r="9" fill="#FFFFFF"/>
+        <circle cx="70" cy="60" r="9" fill="#FFFFFF"/>
+        <circle cx="94" cy="60" r="9" fill="#FFFFFF"/>
+
+        <!-- CRP letters -->
+        <text x="46" y="64"
+              font-family="Inter, Segoe UI, Roboto, Arial, sans-serif"
+              font-size="12"
+              font-weight="700"
+              text-anchor="middle"
+              fill="#1F9D78">C</text>
+
+        <text x="70" y="64"
+              font-family="Inter, Segoe UI, Roboto, Arial, sans-serif"
+              font-size="12"
+              font-weight="700"
+              text-anchor="middle"
+              fill="#1F9D78">R</text>
+
+        <text x="94" y="64"
+              font-family="Inter, Segoe UI, Roboto, Arial, sans-serif"
+              font-size="12"
+              font-weight="700"
+              text-anchor="middle"
+              fill="#1F9D78">P</text>
+
+        <!-- Base -->
+        <ellipse cx="70" cy="114" rx="30" ry="7"
+                 fill="#1F9D78"/>
+        <rect x="40" y="114" width="60" height="10"
+              rx="4" fill="#157A5D"/>
+    </g>
+</svg>

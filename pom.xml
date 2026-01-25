@@ -21,6 +21,8 @@
 
 		<crp-flowable-ex.version>0.0.7</crp-flowable-ex.version>
 		<application.name>acme</application.name>
+		<nodejs.version>v18.19.0</nodejs.version>
+		<npm.version>10.2.3</npm.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -52,7 +54,6 @@
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-ollama</artifactId>
-            <version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -124,9 +125,16 @@
 				<version>${crp-flowable-ex.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>1.1.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 	<build>
 		<extensions>
 			<extension>
@@ -227,8 +235,70 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
-		</plugins>
+			<!-- Frontend Maven Plugin for React build -->
+			<plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.4</version>
+				<configuration>
+					<workingDirectory>frontend</workingDirectory>
+					<nodeVersion>${nodejs.version}</nodeVersion>
+					<npmVersion>${npm.version}</npmVersion>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+					</execution>
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>install</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm run build</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Copy frontend build to static resources -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<executions>
+					<execution>
+						<id>copy-frontend-dist</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/src/main/resources/static</outputDirectory>
+							<resources>
+								<resource>
+									<directory>frontend/dist</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+        </plugins>
 		<pluginManagement>
 			<plugins>
 				<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
