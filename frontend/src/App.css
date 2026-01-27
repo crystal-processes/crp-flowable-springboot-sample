@@ -181,6 +181,7 @@ body {
   overflow: hidden;
 }
 
+
 /* ============================================
    NAVBAR
    ============================================ */
@@ -240,7 +241,37 @@ body {
 .navbar-status {
   display: flex;
   align-items: center;
+  gap: 15px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
   gap: 10px;
+  padding: 8px 12px;
+  background: rgba(100, 108, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9em;
+}
+
+.btn-logout {
+  background: rgba(220, 80, 80, 0.2);
+  border: 1px solid rgba(220, 80, 80, 0.4);
+  color: #ff6b6b;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-logout:hover {
+  background: rgba(220, 80, 80, 0.3);
+  border-color: rgba(220, 80, 80, 0.6);
+  color: #ff8787;
 }
 
 .status-indicator {
@@ -1066,6 +1097,7 @@ header {
   .navbar-content {
     flex-direction: column;
   }
+
 
   .navbar-stats {
     flex-direction: column;

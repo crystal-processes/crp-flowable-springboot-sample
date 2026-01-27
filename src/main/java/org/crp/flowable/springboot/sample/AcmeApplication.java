@@ -30,11 +30,31 @@ public class AcmeApplication {
                 josh.setLastName("Long");
                 josh.setPassword("password");
                 identityService.saveUser(josh);
-            }
-
-            if (identityService.createUserQuery().userId("jlong").memberOfGroup("user").count() == 0L) {
                 identityService.createMembership("jlong", "user");
             }
+
+            // Create demo user: admin with password "test"
+            if (identityService.createUserQuery().userId("admin").count() == 0L) {
+                User admin = identityService.newUser("admin");
+                admin.setFirstName("Admin");
+                admin.setLastName("User");
+                // Store encoded password for JWT authentication
+                admin.setPassword("test");
+                identityService.saveUser(admin);
+                identityService.createMembership("admin", "user");
+            }
+
+            // Create demo user: test with password "test"
+            if (identityService.createUserQuery().userId("test").count() == 0L) {
+                User testUser = identityService.newUser("test");
+                testUser.setFirstName("Test");
+                testUser.setLastName("User");
+                // Store encoded password for JWT authentication
+                testUser.setPassword("test");
+                identityService.saveUser(testUser);
+                identityService.createMembership("test", "user");
+            }
+
         };
 	}
 

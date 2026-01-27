@@ -6,7 +6,22 @@ export default defineConfig({
   server: {
     proxy: {
       '/process-api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8090',
+        changeOrigin: true,
+        credentials: 'include'
+      },
+      '/login': {
+        target: 'http://localhost:8090',
+        changeOrigin: true,
+        credentials: 'include'
+      },
+      '/logout': {
+        target: 'http://localhost:8090',
+        changeOrigin: true,
+        credentials: 'include'
+      },
+      '/health': {
+        target: 'http://localhost:8090',
         changeOrigin: true
       }
     }

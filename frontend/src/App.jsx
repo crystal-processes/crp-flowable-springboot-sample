@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './App.css'
 import TasksTab from './TasksTab'
 import ProcessesTab from './ProcessesTab'
 import StatusTab from './StatusTab'
 import ProcessInstancesTab from './ProcessInstancesTab'
+import { useAuth } from './AuthContext'
+import { makeAuthenticatedRequest } from './utils/api'
 
 function App() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
   const [processes, setProcesses] = useState([])
   const [processInstances, setProcessInstances] = useState([])
@@ -16,7 +21,6 @@ function App() {
   const [successMessage, setSuccessMessage] = useState(null)
   const [activeTab, setActiveTab] = useState('tasks')
   const [statusSubTab, setStatusSubTab] = useState('system')
-  const [hoverStatus, setHoverStatus] = useState(false)
 
   // Fetch tasks from Flowable REST API
   // Endpoint: GET /process-api/runtime/tasks
@@ -24,7 +28,7 @@ function App() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/process-api/runtime/tasks?sort=createTime&order=desc&start=0&size=50')
+      const response = await makeAuthenticatedRequest('/process-api/runtime/tasks?sort=createTime&order=desc&start=0&size=50')
       if (response.ok) {
         const json = await response.json()
         // Important: Flowable returns data in 'data' property
@@ -48,7 +52,7 @@ function App() {
   // Endpoint: GET /process-api/repository/process-definitions
   const fetchProcesses = async () => {
     try {
-      const response = await fetch('/process-api/repository/process-definitions?latest=true&sort=name&order=asc&start=0&size=50')
+      const response = await makeAuthenticatedRequest('/process-api/repository/process-definitions?latest=true&sort=name&order=asc&start=0&size=50')
       if (response.ok) {
         const json = await response.json()
         // Important: Flowable returns data in 'data' property
@@ -67,7 +71,7 @@ function App() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/process-api/runtime/process-instances?sort=startTime&order=desc&start=0&size=50')
+      const response = await makeAuthenticatedRequest('/process-api/runtime/process-instances?sort=startTime&order=desc&start=0&size=50')
       if (response.ok) {
         const json = await response.json()
         const instancesData = json.data || []
@@ -139,7 +143,7 @@ function App() {
           <div className="navbar-content">
             <div className="navbar-title">
               <h2>
-                  <img src="/favicon.png" alt="CRP Logo" width="64" height="64"/>
+                  <img src="/favicon.svg" alt="CRP Logo" width="64" height="64"/>
               </h2>
             </div>
             <div className="navbar-tabs">
@@ -163,50 +167,18 @@ function App() {
               </button>
             </div>
             <div className="navbar-status">
-              <div
-                className="status-indicator"
-                onMouseEnter={() => setHoverStatus(true)}
-                onMouseLeave={() => setHoverStatus(false)}
-              >
-                {hoverStatus ? (
-                  <button
-                    onClick={() => {
-                      if (activeTab === 'tasks') {
-                        fetchTasks()
-                      } else if (activeTab === 'instances') {
-                        fetchProcessInstances()
-                      } else if (activeTab === 'status') {
-                        fetchTasks()
-                        fetchProcesses()
-                      }
-                    }}
-                    disabled={loading}
-                    className="btn-status-refresh"
-                    title="Refresh current tab data"
-                  >
-                    <span className="status-icon">{loading ? '⏳' : '🔄'}</span>
-                    <span className="status-text">{loading ? 'Loading...' : 'Refresh'}</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      if (activeTab === 'tasks') {
-                        fetchTasks()
-                      } else if (activeTab === 'instances') {
-                        fetchProcessInstances()
-                      } else if (activeTab === 'status') {
-                        fetchTasks()
-                        fetchProcesses()
-                      }
-                    }}
-                    disabled={loading}
-                    className="btn-status-refresh"
-                    title="Refresh current tab data"
-                  >
-                    <span className="status-icon">{loading ? '⏳' : '✅'}</span>
-                    <span className="status-text">{loading ? 'Loading...' : 'Ready'}</span>
-                  </button>
-                )}
+              <div className="user-info">
+                <span>👤 {user?.username || 'User'}</span>
+                <button
+                  onClick={() => {
+                    logout()
+                    navigate('/login')
+                  }}
+                  className="btn-logout"
+                  title="Logout"
+                >
+                  🚪 Logout
+                </button>
               </div>
             </div>
           </div>

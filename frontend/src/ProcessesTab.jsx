@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { makeAuthenticatedRequest } from './utils/api'
 
 function ProcessesTab({ processes, loading, error, setError, successMessage, setSuccessMessage }) {
   const [selectedProcess, setSelectedProcess] = useState(null)
@@ -24,7 +25,7 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
         businessKey: businessKey || undefined
       }
 
-      const response = await fetch('/process-api/runtime/process-instances', {
+      const response = await makeAuthenticatedRequest('/process-api/runtime/process-instances', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
