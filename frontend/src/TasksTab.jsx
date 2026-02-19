@@ -1,8 +1,33 @@
 import { useState } from 'react'
+import FormEngine from './FormEngine'
 
 function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance }) {
+  const [showForm, setShowForm] = useState(false)
+  const [formSubmitMessage, setFormSubmitMessage] = useState(null)
+
+  const handleFormSubmit = (formData, result) => {
+    setFormSubmitMessage('✅ Task form submitted successfully!')
+    setShowForm(false)
+    setSelectedTask(null)
+
+    // Refresh tasks to reflect any changes
+    fetchTasks()
+
+    // Clear success message after 3 seconds
+    setTimeout(() => setFormSubmitMessage(null), 3000)
+  }
+
+  const handleFormClose = () => {
+    setShowForm(false)
+  }
   return (
     <div className="tab-content">
+      {formSubmitMessage && (
+        <div className="alert alert-success">
+          <strong>{formSubmitMessage}</strong>
+          <button onClick={() => setFormSubmitMessage(null)} className="close-btn">✕</button>
+        </div>
+      )}
 
       {loading && tasks.length === 0 ? (
         <p className="loading-message">⏳ Loading tasks from Flowable...</p>
@@ -47,7 +72,7 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
         <p className="empty-message">✅ No tasks currently assigned. Great job!</p>
       )}
 
-      {selectedTask && (
+      {selectedTask && !showForm && (
         <div className="task-details-panel">
           <div className="task-details-header">
             <h3>📝 Task Details</h3>
@@ -71,8 +96,23 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
             {selectedTask.priority !== undefined && (
               <p><strong>Priority:</strong> {selectedTask.priority}</p>
             )}
+            <button
+              onClick={() => setShowForm(true)}
+              className="btn-form-submit"
+              title="Fill and submit the task form"
+            >
+              📋 Fill Task Form
+            </button>
           </div>
         </div>
+      )}
+
+      {selectedTask && showForm && (
+        <FormEngine
+          taskId={selectedTask.id}
+          onSubmit={handleFormSubmit}
+          onClose={handleFormClose}
+        />
       )}
     </div>
   )

@@ -5,6 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      '/form-api': {
+        target: 'http://localhost:8090',
+        changeOrigin: true,
+        credentials: 'include'
+      },
       '/process-api': {
         target: 'http://localhost:8090',
         changeOrigin: true,

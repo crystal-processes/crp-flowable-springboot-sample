@@ -7,7 +7,8 @@
       <design:creationdate><![CDATA[2023-12-06T06:00:45.166Z]]></design:creationdate>
       <design:modificationdate><![CDATA[2023-12-13T15:32:26.778Z]]></design:modificationdate>
     </extensionElements>
-    <userTask id="theSayHelloUserTask" name="Say hello world" flowable:assignee="${initiator}" flowable:formFieldValidation="false">
+    <userTask id="theSayHelloUserTask" name="Say hello world" flowable:assignee="${initiator}" flowable:formFieldValidation="false"
+    flowable:formKey="ExampleFormComponent.jsx">
       <extensionElements>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
