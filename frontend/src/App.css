@@ -886,6 +886,65 @@ header {
   color: white;
 }
 
+.toggle-details-btn {
+  background: linear-gradient(135deg, rgba(100, 108, 255, 0.2) 0%, rgba(100, 108, 255, 0.1) 100%);
+  border: 1px solid rgba(100, 108, 255, 0.4);
+  color: #646cff;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.2);
+}
+
+.toggle-details-btn:hover {
+  background: linear-gradient(135deg, rgba(100, 108, 255, 0.4) 0%, rgba(100, 108, 255, 0.3) 100%);
+  color: #535bf2;
+  transform: scale(1.15) translateY(-2px);
+  border-color: #646cff;
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.4);
+}
+
+.toggle-details-btn:active {
+  transform: scale(0.95) translateY(0);
+  box-shadow: 0 1px 4px rgba(100, 108, 255, 0.2);
+}
+
+.toggle-details-btn.toggle-expanded {
+  animation: expandedPulse 0.4s ease;
+}
+
+@keyframes expandedPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.toggle-details-icon {
+  font-size: 1.5em;
+  color: rgba(100, 108, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  padding: 6px 10px;
+}
+
 .task-details {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1042,6 +1101,135 @@ header {
 }
 
 /* ============================================
+   TASK FILTER & LIMIT
+   ============================================ */
+
+.task-filter-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(100, 108, 255, 0.1);
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.task-filter-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 10px 14px;
+  border: 1px solid rgba(100, 108, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.87);
+  border-radius: 6px;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
+}
+
+.task-filter-type-select {
+  padding: 10px 14px;
+  border: 1px solid rgba(100, 108, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.87);
+  border-radius: 6px;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.task-filter-type-select:focus {
+  outline: none;
+  border-color: #646cff;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}
+
+.task-filter-type-select option {
+  background: #1a1a1a;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.task-filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.task-filter-input:focus {
+  outline: none;
+  border-color: #646cff;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}
+
+.btn-clear-filter {
+  padding: 10px 14px;
+  background: rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(255, 107, 107, 0.4);
+  color: #ff6b6b;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95em;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-clear-filter:hover {
+  background: rgba(255, 107, 107, 0.3);
+  border-color: #ff6b6b;
+}
+
+.task-count {
+  padding: 0 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9em;
+  white-space: nowrap;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.task-limit-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.87);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.task-limit-input {
+  padding: 8px 10px;
+  width: 100px;
+  border: 1px solid rgba(100, 108, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.87);
+  border-radius: 6px;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
+}
+
+.task-limit-input:focus {
+  outline: none;
+  border-color: #646cff;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+}
+
+/* Chrome, Safari and Opera */
+.task-limit-input::-webkit-outer-spin-button,
+.task-limit-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.task-limit-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* ============================================
    RESPONSIVE DESIGN
    ============================================ */
 
@@ -1161,4 +1349,87 @@ header {
 .btn-form-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* ============================================
+   PROCESS DIAGRAM
+   ============================================ */
+
+.diagram-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(100, 108, 255, 0.05);
+  border: 1px solid rgba(100, 108, 255, 0.2);
+  border-radius: 8px;
+}
+
+.diagram-section h4 {
+  margin-top: 0;
+  color: #646cff;
+  font-size: 1.1em;
+  margin-bottom: 15px;
+}
+
+.diagram-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(100, 108, 255, 0.2);
+  border-radius: 6px;
+  padding: 15px;
+  min-height: 300px;
+  max-height: 600px;
+  overflow: auto;
+}
+
+.process-diagram {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.diagram-loading,
+.diagram-error,
+.diagram-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(100, 108, 255, 0.2);
+  border-radius: 6px;
+  padding: 40px 20px;
+  min-height: 200px;
+  text-align: center;
+}
+
+.diagram-loading {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.diagram-loading p {
+  margin: 0;
+  font-size: 0.95em;
+}
+
+.diagram-error {
+  border-color: rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.08);
+}
+
+.diagram-error p {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 0.95em;
+}
+
+.diagram-empty {
+  border-color: rgba(100, 108, 255, 0.2);
+}
+
+.diagram-empty p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95em;
 }

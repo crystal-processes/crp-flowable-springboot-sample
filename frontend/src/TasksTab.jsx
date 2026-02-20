@@ -1,13 +1,25 @@
 import { useState } from 'react'
 import FormEngine from './FormEngine'
 
-function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance, fetchProcessInstances }) {
-  const [showForm, setShowForm] = useState(false)
+function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance, fetchProcessInstances, taskFilter, setTaskFilter, taskLimit, taskFilterType, setTaskFilterType }) {
   const [formSubmitMessage, setFormSubmitMessage] = useState(null)
+
+  const handleFilterChange = (e) => {
+    const newFilter = e.target.value
+    setTaskFilter(newFilter)
+    // Fetch tasks with new filter and current filter type
+    fetchTasks(newFilter, taskFilterType)
+  }
+
+  const handleFilterTypeChange = (e) => {
+    const newType = e.target.value
+    setTaskFilterType(newType)
+    // Fetch tasks with new filter type and current filter
+    fetchTasks(taskFilter, newType)
+  }
 
   const handleFormSubmit = (formData, result) => {
     setFormSubmitMessage('✅ Task form submitted successfully!')
-    setShowForm(false)
     setSelectedTask(null)
 
     // Refresh tasks and process instances to reflect any changes
@@ -21,7 +33,7 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
   }
 
   const handleFormClose = () => {
-    setShowForm(false)
+    setSelectedTask(null)
   }
   return (
     <div className="tab-content">
@@ -31,6 +43,39 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
           <button onClick={() => setFormSubmitMessage(null)} className="close-btn">✕</button>
         </div>
       )}
+
+      {/* Task Filter Input */}
+      <div className="task-filter-section">
+        <select
+          value={taskFilterType}
+          onChange={handleFilterTypeChange}
+          className="task-filter-type-select"
+        >
+          <option value="name">🏷️ Task Name</option>
+          <option value="businessKey">🔑 Business Key</option>
+          <option value="processName">⚙️ Process Name</option>
+          <option value="taskKey">📌 Task Definition Key</option>
+        </select>
+        <input
+          type="text"
+          placeholder="🔍 Enter search term..."
+          value={taskFilter}
+          onChange={handleFilterChange}
+          className="task-filter-input"
+        />
+        {taskFilter && (
+          <button
+            onClick={() => {
+              setTaskFilter('')
+              fetchTasks('', taskFilterType)
+            }}
+            className="btn-clear-filter"
+          >
+            ✕ Clear Filter
+          </button>
+        )}
+        <span className="task-count">Showing {tasks.length} tasks (Limit: {taskLimit})</span>
+      </div>
 
       {loading && tasks.length === 0 ? (
         <p className="loading-message">⏳ Loading tasks from Flowable...</p>
@@ -45,6 +90,23 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
               <div className="task-header">
                 <h3>{task.name}</h3>
                 <span className="task-id">ID: {task.id}</span>
+                {(selectedTask) && (selectedTask.id === task.id) && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedTask(null)
+                    }}
+                    className="toggle-details-btn toggle-expanded"
+                    title="Hide task details"
+                  >
+                    ▲
+                  </button>
+                )}
+                {(!selectedTask || (selectedTask.id !== task.id)) && (
+                  <span className="toggle-details-icon" title="Show task details">
+                    ▼
+                  </span>
+                )}
               </div>
               <div className="task-info">
                 <p><strong>Assignee:</strong> {task.assignee || 'Unassigned'}</p>
@@ -58,7 +120,7 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
                     }}
                     title="Go to process instance details"
                   >
-                    {task.processDefinitionId} → {task.processInstanceId.substring(0, 8)}...
+                    {task.processDefinitionId} → {(task.processInstanceId) ? task.processInstanceId.substring(0, 8) : 'no processInstanceId'}...
                   </button>
                 </p>
                 {task.dueDate && (
@@ -68,54 +130,22 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
                   <p><strong>Created:</strong> {new Date(task.createTime).toLocaleString()}</p>
                 )}
               </div>
+              {(selectedTask) && (selectedTask.id === task.id) && (
+                  <div className="task-details-panel">
+                  {(task.formKey) ?
+                            <FormEngine
+                                taskId={selectedTask.id}
+                                onSubmit={handleFormSubmit}
+                                onClose={handleFormClose}
+                            />
+                  : 'Without form'}
+                  </div>
+              )}
             </div>
           ))}
         </div>
       ) : (
         <p className="empty-message">✅ No tasks currently assigned. Great job!</p>
-      )}
-
-      {selectedTask && !showForm && (
-        <div className="task-details-panel">
-          <div className="task-details-header">
-            <h3>📝 Task Details</h3>
-            <button onClick={() => setSelectedTask(null)} className="close-icon">✕</button>
-          </div>
-          <div className="task-details">
-            <p><strong>Task ID:</strong> <code>{selectedTask.id}</code></p>
-            <p><strong>Name:</strong> {selectedTask.name}</p>
-            <p><strong>Assignee:</strong> {selectedTask.assignee || 'Unassigned'}</p>
-            <p><strong>Process Definition ID:</strong> {selectedTask.processDefinitionId}</p>
-            <p><strong>Process Instance ID:</strong> {selectedTask.processInstanceId}</p>
-            {selectedTask.description && (
-              <p><strong>Description:</strong> {selectedTask.description}</p>
-            )}
-            {selectedTask.dueDate && (
-              <p><strong>Due Date:</strong> {new Date(selectedTask.dueDate).toLocaleString()}</p>
-            )}
-            {selectedTask.createTime && (
-              <p><strong>Created:</strong> {new Date(selectedTask.createTime).toLocaleString()}</p>
-            )}
-            {selectedTask.priority !== undefined && (
-              <p><strong>Priority:</strong> {selectedTask.priority}</p>
-            )}
-            <button
-              onClick={() => setShowForm(true)}
-              className="btn-form-submit"
-              title="Fill and submit the task form"
-            >
-              📋 Fill Task Form
-            </button>
-          </div>
-        </div>
-      )}
-
-      {selectedTask && showForm && (
-        <FormEngine
-          taskId={selectedTask.id}
-          onSubmit={handleFormSubmit}
-          onClose={handleFormClose}
-        />
       )}
     </div>
   )

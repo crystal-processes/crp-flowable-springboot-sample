@@ -17,18 +17,55 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedTask, setSelectedTask] = useState(null)
-  const [autoRefresh, setAutoRefresh] = useState(true)
+  const [autoRefresh, setAutoRefresh] = useState(false)
   const [successMessage, setSuccessMessage] = useState(null)
   const [activeTab, setActiveTab] = useState('tasks')
   const [statusSubTab, setStatusSubTab] = useState('processes')
+  const [taskFilter, setTaskFilter] = useState('')
+  const [taskLimit, setTaskLimit] = useState(50)
+  const [taskFilterType, setTaskFilterType] = useState('name')
 
   // Fetch tasks from Flowable REST API
-  // Endpoint: GET /process-api/runtime/tasks
-  const fetchTasks = async () => {
+  // Endpoint: POST /process-api/runtime/tasks
+  const fetchTasks = async (filter = taskFilter, filterType = taskFilterType) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await makeAuthenticatedRequest('/process-api/runtime/tasks?sort=createTime&order=desc&start=0&size=50')
+      const requestBody = {
+        start: 0,
+        size: taskLimit,
+        sort: 'createTime',
+        order: 'desc'
+      }
+
+      // Add filter parameter based on selected filter type
+      if (filter && filter.trim()) {
+        switch (filterType) {
+          case 'name':
+            requestBody.nameLikeIgnoreCase = '%'+filter.trim()+'%'
+            break
+          case 'businessKey':
+            requestBody.processInstanceBusinessKeyLike = '%'+filter.trim()+'%'
+            break
+          case 'processName':
+            requestBody.processDefinitionNameLike = '%'+filter.trim()+'%'
+            break
+          case 'taskKey':
+            requestBody.taskDefinitionKeyLike = '%'+filter.trim()+'%'
+            break
+          default:
+            requestBody.nameLikeIgnoreCase = '%'+filter.trim()+'%'
+        }
+      }
+
+      const response = await makeAuthenticatedRequest('/process-api/query/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      })
+
       if (response.ok) {
         const json = await response.json()
         // Important: Flowable returns data in 'data' property
@@ -219,6 +256,11 @@ function App() {
               fetchTasks={fetchTasks}
               fetchProcessInstances={fetchProcessInstances}
               onNavigateToInstance={navigateToProcessInstance}
+              taskFilter={taskFilter}
+              setTaskFilter={setTaskFilter}
+              taskLimit={taskLimit}
+              taskFilterType={taskFilterType}
+              setTaskFilterType={setTaskFilterType}
             />
           )}
 
@@ -247,6 +289,8 @@ function App() {
               setSuccessMessage={setSuccessMessage}
               statusSubTab={statusSubTab}
               setStatusSubTab={setStatusSubTab}
+              taskLimit={taskLimit}
+              setTaskLimit={setTaskLimit}
             />
           )}
         </div>

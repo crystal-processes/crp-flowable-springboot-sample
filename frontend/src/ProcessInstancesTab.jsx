@@ -1,7 +1,54 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { makeAuthenticatedRequest } from './utils/api'
 
 function ProcessInstancesTab({ loading, error, setError, processInstances, fetchProcessInstances }) {
   const [selectedInstance, setSelectedInstance] = useState(null)
+  const [diagramLoading, setDiagramLoading] = useState(false)
+  const [diagramImage, setDiagramImage] = useState(null)
+  const [diagramError, setDiagramError] = useState(null)
+
+  // Fetch process diagram when instance is selected
+  useEffect(() => {
+    if (selectedInstance) {
+      fetchProcessDiagram(selectedInstance.id)
+    } else {
+      setDiagramImage(null)
+      setDiagramError(null)
+    }
+  }, [selectedInstance])
+
+  const fetchProcessDiagram = async (processInstanceId) => {
+    setDiagramLoading(true)
+    setDiagramError(null)
+    try {
+      const response = await makeAuthenticatedRequest(
+        `/process-api/runtime/process-instances/${processInstanceId}/diagram`,
+        {
+          method: 'GET'
+        }
+      )
+
+      if (response.ok) {
+        // Get the blob and create an object URL for the image
+        const blob = await response.blob()
+        const imageUrl = URL.createObjectURL(blob)
+        setDiagramImage(imageUrl)
+        console.log('Process diagram loaded:', imageUrl)
+      } else if (response.status === 404) {
+        setDiagramError('Process diagram not available for this instance')
+        setDiagramImage(null)
+      } else {
+        setDiagramError('Failed to load process diagram')
+        setDiagramImage(null)
+      }
+    } catch (err) {
+      console.error('Error fetching process diagram:', err)
+      setDiagramError(`Error loading diagram: ${err.message}`)
+      setDiagramImage(null)
+    } finally {
+      setDiagramLoading(false)
+    }
+  }
 
   return (
     <div className="tab-content">
@@ -54,6 +101,32 @@ function ProcessInstancesTab({ loading, error, setError, processInstances, fetch
             <p><strong>Status:</strong> {selectedInstance.suspended ? 'Suspended' : 'Running'}</p>
             {selectedInstance.tenantId && (
               <p><strong>Tenant ID:</strong> {selectedInstance.tenantId}</p>
+            )}
+          </div>
+
+          {/* Process Diagram Section */}
+          <div className="diagram-section">
+            <h4>📊 Process Diagram</h4>
+            {diagramLoading ? (
+              <div className="diagram-loading">
+                <p>⏳ Loading process diagram...</p>
+              </div>
+            ) : diagramError ? (
+              <div className="diagram-error">
+                <p>⚠️ {diagramError}</p>
+              </div>
+            ) : diagramImage ? (
+              <div className="diagram-container">
+                <img
+                  src={diagramImage}
+                  alt="Process Diagram"
+                  className="process-diagram"
+                />
+              </div>
+            ) : (
+              <div className="diagram-empty">
+                <p>No diagram available</p>
+              </div>
             )}
           </div>
         </div>

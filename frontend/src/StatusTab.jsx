@@ -13,7 +13,9 @@ function StatusTab({
   successMessage,
   setSuccessMessage,
   statusSubTab,
-  setStatusSubTab
+  setStatusSubTab,
+  taskLimit,
+  setTaskLimit
 }) {
   return (
     <div className="tab-content">
@@ -83,6 +85,23 @@ function StatusTab({
               onChange={(e) => setAutoRefresh(e.target.checked)}
             />
             Enable auto-refresh every 30 seconds
+          </label>
+
+          <label className="task-limit-label">
+            <span>📊 Task Limit:</span>
+            <input
+              type="number"
+              min="1"
+              max="500"
+              value={taskLimit}
+              onChange={(e) => {
+                const newLimit = parseInt(e.target.value, 10)
+                if (newLimit > 0) {
+                  setTaskLimit(newLimit)
+                }
+              }}
+              className="task-limit-input"
+            />
           </label>
         </div>
 
