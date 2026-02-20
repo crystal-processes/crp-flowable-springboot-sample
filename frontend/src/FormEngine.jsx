@@ -102,12 +102,18 @@ function FormEngine({ taskId, onSubmit, onClose }) {
         throw new Error(`Form submission failed: ${response.statusText}`)
       }
 
-      const result = await response.json()
-      console.log('Form submitted successfully:', result)
+      console.log('Form submitted successfully:', response)
 
       if (onSubmit) {
-        onSubmit(formData, result)
+        onSubmit(formData, response)
       }
+
+      // Redirect back to task list after successful submission
+      setTimeout(() => {
+        if (onClose) {
+          onClose()
+        }
+      }, 500)
     } catch (err) {
       console.error('Error submitting form:', err)
       setError(`Submission failed: ${err.message}`)

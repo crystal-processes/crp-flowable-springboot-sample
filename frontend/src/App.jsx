@@ -20,7 +20,7 @@ function App() {
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [successMessage, setSuccessMessage] = useState(null)
   const [activeTab, setActiveTab] = useState('tasks')
-  const [statusSubTab, setStatusSubTab] = useState('system')
+  const [statusSubTab, setStatusSubTab] = useState('processes')
 
   // Fetch tasks from Flowable REST API
   // Endpoint: GET /process-api/runtime/tasks
