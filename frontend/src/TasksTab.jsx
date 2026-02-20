@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import FormEngine from './FormEngine'
 
-function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance }) {
+function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance, fetchProcessInstances }) {
   const [showForm, setShowForm] = useState(false)
   const [formSubmitMessage, setFormSubmitMessage] = useState(null)
 
@@ -10,8 +10,11 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
     setShowForm(false)
     setSelectedTask(null)
 
-    // Refresh tasks to reflect any changes
+    // Refresh tasks and process instances to reflect any changes
     fetchTasks()
+    if (fetchProcessInstances) {
+      fetchProcessInstances()
+    }
 
     // Clear success message after 3 seconds
     setTimeout(() => setFormSubmitMessage(null), 3000)

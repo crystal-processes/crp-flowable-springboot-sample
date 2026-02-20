@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { makeAuthenticatedRequest } from './utils/api'
 
-function ProcessesTab({ processes, loading, error, setError, successMessage, setSuccessMessage }) {
+function ProcessesTab({ processes, loading, error, setError, successMessage, setSuccessMessage, fetchProcessInstances, fetchTasks }) {
   const [selectedProcess, setSelectedProcess] = useState(null)
   const [showStartForm, setShowStartForm] = useState(false)
   const [businessKey, setBusinessKey] = useState('')
@@ -42,6 +42,14 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
         setBusinessKey('')
         setSelectedProcess(null)
         setShowStartForm(false)
+
+        // Refetch process instances
+        if (fetchProcessInstances) {
+          fetchProcessInstances()
+        }
+        if (fetchTasks) {
+            fetchTasks()
+        }
       } else {
         const errorData = await response.json()
         setError(`Failed to start process: ${errorData.message || 'Unknown error'}`)

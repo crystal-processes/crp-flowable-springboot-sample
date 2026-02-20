@@ -7,6 +7,7 @@ function StatusTab({
   autoRefresh,
   setAutoRefresh,
   fetchTasks,
+  fetchProcessInstances,
   error,
   setError,
   successMessage,
@@ -131,6 +132,8 @@ function StatusTab({
             setError={setError}
             successMessage={successMessage}
             setSuccessMessage={setSuccessMessage}
+            fetchProcessInstances={fetchProcessInstances}
+            fetchTasks={fetchTasks}
           />
         </div>
       )}

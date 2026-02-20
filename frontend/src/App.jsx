@@ -149,19 +149,28 @@ function App() {
             <div className="navbar-tabs">
               <button
                 className={`navbar-tab ${activeTab === 'tasks' ? 'active' : ''}`}
-                onClick={() => setActiveTab('tasks')}
+                onClick={() => {
+                  setActiveTab('tasks')
+                  fetchTasks()
+                }}
               >
                 📋 Active Tasks ({tasks.length})
               </button>
               <button
                 className={`navbar-tab ${activeTab === 'instances' ? 'active' : ''}`}
-                onClick={() => setActiveTab('instances')}
+                onClick={() => {
+                  setActiveTab('instances')
+                  fetchProcessInstances()
+                }}
               >
                 🔄 Process Instances ({processInstances.length})
               </button>
               <button
                 className={`navbar-tab ${activeTab === 'status' ? 'active' : ''}`}
-                onClick={() => setActiveTab('status')}
+                onClick={() => {
+                  setActiveTab('status')
+                  fetchProcesses()
+                }}
               >
                 📊 Status
               </button>
@@ -208,6 +217,7 @@ function App() {
               setSelectedTask={setSelectedTask}
               loading={loading}
               fetchTasks={fetchTasks}
+              fetchProcessInstances={fetchProcessInstances}
               onNavigateToInstance={navigateToProcessInstance}
             />
           )}
@@ -230,6 +240,7 @@ function App() {
               autoRefresh={autoRefresh}
               setAutoRefresh={setAutoRefresh}
               fetchTasks={fetchTasks}
+              fetchProcessInstances={fetchProcessInstances}
               error={error}
               setError={setError}
               successMessage={successMessage}
