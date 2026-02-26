@@ -1,33 +1,44 @@
 import ProcessesTab from './ProcessesTab'
+import { useFilter } from './context/FilterContext'
+import CONFIG from './config'
 
 function StatusTab({
   tasks,
   processes,
-  loading,
+  tasksLoading,
+  processesLoading,
   autoRefresh,
   setAutoRefresh,
   fetchTasks,
   fetchProcessInstances,
+  fetchProcesses,
   error,
   setError,
   successMessage,
   setSuccessMessage,
   statusSubTab,
-  setStatusSubTab,
-  taskLimit,
-  setTaskLimit
+  setStatusSubTab
 }) {
+  const { taskLimit, setTaskLimit } = useFilter()
+  const loading = tasksLoading || processesLoading
+
   return (
     <div className="tab-content">
       {/* Sub-tabs navigation */}
-      <div className="subtabs-nav">
+      <div className="subtabs-nav" role="tablist">
         <button
+          role="tab"
+          aria-selected={statusSubTab === 'processes'}
+          aria-controls="panel-processes"
           className={`subtab-button ${statusSubTab === 'processes' ? 'active' : ''}`}
           onClick={() => setStatusSubTab('processes')}
         >
           ⚙️ Process Definitions
         </button>
         <button
+          role="tab"
+          aria-selected={statusSubTab === 'system'}
+          aria-controls="panel-system"
           className={`subtab-button ${statusSubTab === 'system' ? 'active' : ''}`}
           onClick={() => setStatusSubTab('system')}
         >
@@ -37,73 +48,84 @@ function StatusTab({
 
       {/* System Sub-tab */}
       {statusSubTab === 'system' && (
-        <div className="subtab-content">
+        <div id="panel-system" className="subtab-content" role="tabpanel" aria-labelledby="system-tab">
           <div className="status-overview">
             <div className="status-grid">
-          <div className="status-card">
-            <div className="status-icon">📋</div>
-            <div className="status-info">
-              <p className="status-title">Active Tasks</p>
-              <p className="status-value">{tasks.length}</p>
+              <div className="status-card" role="status">
+                <div className="status-icon">📋</div>
+                <div className="status-info">
+                  <p className="status-title">Active Tasks</p>
+                  <p className="status-value">{tasks.length}</p>
+                </div>
+              </div>
+
+              <div className="status-card" role="status">
+                <div className="status-icon">⚙️</div>
+                <div className="status-info">
+                  <p className="status-title">Process Definitions</p>
+                  <p className="status-value">{processes.length}</p>
+                </div>
+              </div>
+
+              <div className="status-card" role="status" aria-live="polite">
+                <div className="status-icon">{loading ? '⏳' : '✅'}</div>
+                <div className="status-info">
+                  <p className="status-title">System Status</p>
+                  <p className="status-value">{loading ? 'Loading...' : 'Ready'}</p>
+                </div>
+              </div>
+
+              <div className="status-card" role="status">
+                <div className="status-icon">🔄</div>
+                <div className="status-info">
+                  <p className="status-title">Auto-Refresh</p>
+                  <p className="status-value">{autoRefresh ? 'Enabled' : 'Disabled'}</p>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="status-card">
-            <div className="status-icon">⚙️</div>
-            <div className="status-info">
-              <p className="status-title">Process Definitions</p>
-              <p className="status-value">{processes.length}</p>
+            <div className="status-actions">
+              <button
+                onClick={() => {
+                  fetchTasks()
+                  fetchProcesses()
+                }}
+                disabled={loading}
+                className="btn-primary"
+                aria-label="Refresh system data"
+              >
+                {loading ? '⏳ Refreshing...' : '🔄 Refresh Now'}
+              </button>
+
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={autoRefresh}
+                  onChange={(e) => setAutoRefresh(e.target.checked)}
+                  aria-label={`Auto-refresh every ${CONFIG.REFRESH.INTERVAL / 1000} seconds`}
+                />
+                Enable auto-refresh every {CONFIG.REFRESH.INTERVAL / 1000} seconds
+              </label>
+
+              <label htmlFor="task-limit-input" className="task-limit-label">
+                <span>📊 Task Limit:</span>
+                <input
+                  id="task-limit-input"
+                  type="number"
+                  min={CONFIG.PAGINATION.MIN_LIMIT}
+                  max={CONFIG.PAGINATION.MAX_LIMIT}
+                  value={taskLimit}
+                  onChange={(e) => {
+                    const newLimit = parseInt(e.target.value, 10)
+                    if (newLimit > 0) {
+                      setTaskLimit(newLimit)
+                    }
+                  }}
+                  className="task-limit-input"
+                  aria-label="Set maximum number of tasks to display"
+                />
+              </label>
             </div>
-          </div>
-
-          <div className="status-card">
-            <div className="status-icon">{loading ? '⏳' : '✅'}</div>
-            <div className="status-info">
-              <p className="status-title">System Status</p>
-              <p className="status-value">{loading ? 'Loading...' : 'Ready'}</p>
-            </div>
-          </div>
-
-          <div className="status-card">
-            <div className="status-icon">🔄</div>
-            <div className="status-info">
-              <p className="status-title">Auto-Refresh</p>
-              <p className="status-value">{autoRefresh ? 'Enabled' : 'Disabled'}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="status-actions">
-          <button onClick={fetchTasks} disabled={loading} className="btn-primary">
-            {loading ? '⏳ Refreshing...' : '🔄 Refresh Now'}
-          </button>
-
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={autoRefresh}
-              onChange={(e) => setAutoRefresh(e.target.checked)}
-            />
-            Enable auto-refresh every 30 seconds
-          </label>
-
-          <label className="task-limit-label">
-            <span>📊 Task Limit:</span>
-            <input
-              type="number"
-              min="1"
-              max="500"
-              value={taskLimit}
-              onChange={(e) => {
-                const newLimit = parseInt(e.target.value, 10)
-                if (newLimit > 0) {
-                  setTaskLimit(newLimit)
-                }
-              }}
-              className="task-limit-input"
-            />
-          </label>
-        </div>
 
         <div className="status-details">
           <h3>📈 Details</h3>
@@ -143,10 +165,10 @@ function StatusTab({
 
       {/* Process Definitions Sub-tab */}
       {statusSubTab === 'processes' && (
-        <div className="subtab-content">
+        <div id="panel-processes" className="subtab-content" role="tabpanel" aria-labelledby="processes-tab">
           <ProcessesTab
             processes={processes}
-            loading={loading}
+            loading={processesLoading}
             error={error}
             setError={setError}
             successMessage={successMessage}

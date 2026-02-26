@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { makeAuthenticatedRequest } from './utils/api'
 
 function ProcessInstancesTab({ loading, error, setError, processInstances, fetchProcessInstances }) {
@@ -7,60 +7,74 @@ function ProcessInstancesTab({ loading, error, setError, processInstances, fetch
   const [diagramImage, setDiagramImage] = useState(null)
   const [diagramError, setDiagramError] = useState(null)
 
+
   // Fetch process diagram when instance is selected
   useEffect(() => {
-    if (selectedInstance) {
-      fetchProcessDiagram(selectedInstance.id)
-    } else {
+    if (!selectedInstance) {
       setDiagramImage(null)
       setDiagramError(null)
+      return
     }
-  }, [selectedInstance])
 
-  const fetchProcessDiagram = async (processInstanceId) => {
-    setDiagramLoading(true)
-    setDiagramError(null)
-    try {
-      const response = await makeAuthenticatedRequest(
-        `/process-api/runtime/process-instances/${processInstanceId}/diagram`,
-        {
-          method: 'GET'
+    // Fetch diagram for selected instance
+    const fetchDiagram = async () => {
+      setDiagramLoading(true)
+      setDiagramError(null)
+      try {
+        const response = await makeAuthenticatedRequest(
+          `/process-api/runtime/process-instances/${selectedInstance.id}/diagram`,
+          { method: 'GET' }
+        )
+
+        if (response.ok) {
+          const blob = await response.blob()
+          const imageUrl = URL.createObjectURL(blob)
+          setDiagramImage(imageUrl)
+          console.log('Process diagram loaded:', imageUrl)
+        } else if (response.status === 404) {
+          setDiagramError('Process diagram not available for this instance')
+          setDiagramImage(null)
+        } else {
+          setDiagramError('Failed to load process diagram')
+          setDiagramImage(null)
         }
-      )
-
-      if (response.ok) {
-        // Get the blob and create an object URL for the image
-        const blob = await response.blob()
-        const imageUrl = URL.createObjectURL(blob)
-        setDiagramImage(imageUrl)
-        console.log('Process diagram loaded:', imageUrl)
-      } else if (response.status === 404) {
-        setDiagramError('Process diagram not available for this instance')
+      } catch (err) {
+        console.error('Error fetching process diagram:', err)
+        setDiagramError(`Error loading diagram: ${err.message}`)
         setDiagramImage(null)
-      } else {
-        setDiagramError('Failed to load process diagram')
-        setDiagramImage(null)
+      } finally {
+        setDiagramLoading(false)
       }
-    } catch (err) {
-      console.error('Error fetching process diagram:', err)
-      setDiagramError(`Error loading diagram: ${err.message}`)
-      setDiagramImage(null)
-    } finally {
-      setDiagramLoading(false)
     }
-  }
+
+    fetchDiagram()
+
+    // Cleanup object URL on unmount
+    return () => {
+      if (diagramImage) {
+        URL.revokeObjectURL(diagramImage)
+      }
+    }
+  }, [selectedInstance?.id]) // Only depend on selected instance ID
+
+  // Memoize process instances list
+  const memoizedInstances = useMemo(() => processInstances, [processInstances])
 
   return (
     <div className="tab-content">
-      {loading && processInstances.length === 0 ? (
+      {loading && memoizedInstances.length === 0 ? (
         <p className="loading-message">⏳ Loading process instances from Flowable...</p>
-      ) : processInstances.length > 0 ? (
-        <div className="processes-list">
-          {processInstances.map((instance) => (
+      ) : memoizedInstances.length > 0 ? (
+        <div className="processes-list" role="region" aria-label="Process instances">
+          {memoizedInstances.map((instance) => (
             <div
               key={instance.id}
               className={`process-item ${selectedInstance?.id === instance.id ? 'selected' : ''}`}
               onClick={() => setSelectedInstance(instance)}
+              role="button"
+              tabIndex={0}
+              aria-pressed={selectedInstance?.id === instance.id}
+              aria-label={`Process instance: ${instance.name || instance.id}`}
             >
               <h4>{instance.processDefinitionKey}</h4>
               <p className="process-id">Instance ID: {instance.id}</p>
@@ -78,10 +92,17 @@ function ProcessInstancesTab({ loading, error, setError, processInstances, fetch
       )}
 
       {selectedInstance && (
-        <div className="instance-details-panel">
+        <div className="instance-details-panel" role="region" aria-label="Process instance details">
           <div className="instance-details-header">
             <h3>📋 Process Instance Details</h3>
-            <button onClick={() => setSelectedInstance(null)} className="close-icon">✕</button>
+            <button
+              onClick={() => setSelectedInstance(null)}
+              className="close-icon"
+              aria-label="Close process instance details"
+              title="Close"
+            >
+              ✕
+            </button>
           </div>
           <div className="instance-details">
             <p><strong>Instance ID:</strong> <code>{selectedInstance.id}</code></p>
@@ -119,12 +140,13 @@ function ProcessInstancesTab({ loading, error, setError, processInstances, fetch
               <div className="diagram-container">
                 <img
                   src={diagramImage}
-                  alt="Process Diagram"
+                  alt={`Process diagram for ${selectedInstance.name || selectedInstance.id}`}
                   className="process-diagram"
+                  role="img"
                 />
               </div>
             ) : (
-              <div className="diagram-empty">
+              <div className="diagram-empty" role="status">
                 <p>No diagram available</p>
               </div>
             )}

@@ -1,161 +1,146 @@
-import { useState } from 'react'
-import FormEngine from './FormEngine'
+import { useState, useCallback, useMemo } from 'react'
+import TaskItem from './components/TaskItem'
+import PaginationControls from './components/PaginationControls'
+import { useFilter } from './context/FilterContext'
+import CONFIG from './config'
 
-function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance, fetchProcessInstances,
-    taskFilter, setTaskFilter, taskLimit, taskFilterType, setTaskFilterType, showFinishedTasks, setShowFinishedTasks }) {
+function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance, fetchProcessInstances }) {
   const [formSubmitMessage, setFormSubmitMessage] = useState(null)
+  const {
+    taskFilter,
+    setTaskFilter,
+    taskFilterType,
+    setTaskFilterType,
+    showFinishedTasks,
+    setShowFinishedTasks,
+    taskLimit
+  } = useFilter()
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = useCallback((e) => {
     const newFilter = e.target.value
     setTaskFilter(newFilter)
-    // Fetch tasks with new filter and current filter type
     fetchTasks(showFinishedTasks, newFilter, taskFilterType)
-  }
+  }, [setTaskFilter, fetchTasks, showFinishedTasks, taskFilterType])
 
-  const handleFilterTypeChange = (e) => {
+  const handleFilterTypeChange = useCallback((e) => {
     const newType = e.target.value
     setTaskFilterType(newType)
-    // Fetch tasks with new filter type and current filter
     fetchTasks(showFinishedTasks, taskFilter, newType)
-  }
+  }, [setTaskFilterType, fetchTasks, showFinishedTasks, taskFilter])
 
-  const handleFormSubmit = (formData, result) => {
+  const handleFormSubmit = useCallback((formData, result) => {
     setFormSubmitMessage('✅ Task form submitted successfully!')
     setSelectedTask(null)
-
-    // Refresh tasks and process instances to reflect any changes
     fetchTasks(showFinishedTasks, taskFilter, taskFilterType)
     if (fetchProcessInstances) {
       fetchProcessInstances()
     }
+    const timer = setTimeout(() => setFormSubmitMessage(null), CONFIG.UI.ALERT_TIMEOUT)
+    return () => clearTimeout(timer)
+  }, [fetchTasks, fetchProcessInstances, showFinishedTasks, taskFilter, taskFilterType, setSelectedTask])
 
-    // Clear success message after 3 seconds
-    setTimeout(() => setFormSubmitMessage(null), 3000)
-  }
+  // Memoize task list to prevent unnecessary re-renders
+  const memoizedTasks = useMemo(() => tasks, [tasks])
 
-  const handleFormClose = () => {
+  const handleFormClose = useCallback(() => {
     setSelectedTask(null)
-  }
+  }, [setSelectedTask])
 
-  const handleShowFinishedTasks = () => {
-    setShowFinishedTasks(!showFinishedTasks)
+  const handleShowFinishedTasks = useCallback(() => {
+    const newValue = !showFinishedTasks
+    setShowFinishedTasks(newValue)
     setSelectedTask(null)
-    fetchTasks(showFinishedTasks, taskFilter, taskFilterType)
-  }
+    fetchTasks(newValue, taskFilter, taskFilterType)
+  }, [showFinishedTasks, setShowFinishedTasks, setSelectedTask, fetchTasks, taskFilter, taskFilterType])
+
+  const handleClearFilter = useCallback(() => {
+    setTaskFilter('')
+    fetchTasks(showFinishedTasks, '', taskFilterType)
+  }, [setTaskFilter, fetchTasks, showFinishedTasks, taskFilterType])
 
   return (
     <div className="tab-content">
       {formSubmitMessage && (
         <div className="alert alert-success">
           <strong>{formSubmitMessage}</strong>
-          <button onClick={() => setFormSubmitMessage(null)} className="close-btn">✕</button>
+          <button onClick={() => setFormSubmitMessage(null)} className="close-btn" aria-label="Close message">✕</button>
         </div>
       )}
 
       {/* Task Filter Input */}
       <div className="task-filter-section">
-          <label>
-        <input type="checkbox" name="showFinishedTasks" value={showFinishedTasks} onChange={handleShowFinishedTasks}/>
-        <br/> Finished
+        <label htmlFor="finished-checkbox" className="filter-label">
+          <input
+            id="finished-checkbox"
+            type="checkbox"
+            name="showFinishedTasks"
+            checked={showFinishedTasks}
+            onChange={handleShowFinishedTasks}
+            aria-label="Show finished tasks"
+          />
+          <span>Show Finished Tasks</span>
         </label>
+
         <select
           value={taskFilterType}
           onChange={handleFilterTypeChange}
           className="task-filter-type-select"
+          aria-label="Filter by task property"
         >
           <option value="name">🏷️ Task Name</option>
           <option value="businessKey">🔑 Business Key</option>
           <option value="processName">⚙️ Process Name</option>
           <option value="taskKey">📌 Task Definition Key</option>
         </select>
+
         <input
           type="text"
           placeholder="🔍 Enter search term..."
           value={taskFilter}
           onChange={handleFilterChange}
           className="task-filter-input"
+          aria-label="Search tasks"
         />
+
         {taskFilter && (
           <button
-            onClick={() => {
-              setTaskFilter('')
-              fetchTasks(showFinishedTasks, '', taskFilterType)
-            }}
+            onClick={handleClearFilter}
             className="btn-clear-filter"
+            title="Clear search filter"
+            aria-label="Clear search filter"
           >
             ✕ Clear Filter
           </button>
         )}
-        <span className="task-count">Showing {tasks.length} tasks (Limit: {taskLimit})</span>
+
+        <span className="task-count" role="status" aria-live="polite">
+          Showing {tasks.length} tasks (Limit: {taskLimit})
+        </span>
       </div>
 
-      {loading && tasks.length === 0 ? (
+      {loading && memoizedTasks.length === 0 ? (
         <p className="loading-message">⏳ Loading tasks from Flowable...</p>
-      ) : tasks.length > 0 ? (
-        <div className="tasks-list">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className={`task-item ${selectedTask?.id === task.id ? 'selected' : ''}`}
-              onClick={() => setSelectedTask(task)}
-            >
-              <div className="task-header">
-                <h3>{task.name}</h3>
-                <span className="task-id">ID: {task.id}</span>
-                {(selectedTask) && (selectedTask.id === task.id) && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedTask(null)
-                    }}
-                    className="toggle-details-btn toggle-expanded"
-                    title="Hide task details"
-                  >
-                    ▲
-                  </button>
-                )}
-                {(!selectedTask || (selectedTask.id !== task.id)) && (
-                  <span className="toggle-details-icon" title="Show task details">
-                    ▼
-                  </span>
-                )}
-              </div>
-              <div className="task-info">
-                <p><strong>Assignee:</strong> {task.assignee || 'Unassigned'}</p>
-                <p>
-                  <strong>Process:</strong>{' '}
-                  <button
-                    className="link-button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onNavigateToInstance && onNavigateToInstance(task.processInstanceId)
-                    }}
-                    title="Go to process instance details"
-                  >
-                    {task.processDefinitionId} → {(task.processInstanceId) ? task.processInstanceId.substring(0, 8) : 'no processInstanceId'}...
-                  </button>
-                </p>
-                {task.dueDate && (
-                  <p><strong>Due Date:</strong> {new Date(task.dueDate).toLocaleDateString()}</p>
-                )}
-                {task.createTime && (
-                  <p><strong>Created:</strong> {new Date(task.createTime).toLocaleString()}</p>
-                )}
-              </div>
-              {(selectedTask) && (selectedTask.id === task.id) && (
-                  <div className="task-details-panel">
-                  {(task.formKey) ?
-                            <FormEngine
-                                taskId={selectedTask.id}
-                                onSubmit={handleFormSubmit}
-                                onClose={handleFormClose}
-                            />
-                  : 'Without form'}
-                  </div>
-              )}
-            </div>
-          ))}
-        </div>
+      ) : memoizedTasks.length > 0 ? (
+        <>
+          <div className="tasks-list">
+            {memoizedTasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                isSelected={selectedTask?.id === task.id}
+                onSelect={() => setSelectedTask(task)}
+                onDeselect={() => setSelectedTask(null)}
+                onFormSubmit={handleFormSubmit}
+                onFormClose={handleFormClose}
+                onNavigateToInstance={onNavigateToInstance}
+              />
+            ))}
+          </div>
+          <PaginationControls
+            currentCount={memoizedTasks.length}
+            totalAvailable={memoizedTasks.length + (memoizedTasks.length >= taskLimit ? 1 : 0)}
+          />
+        </>
       ) : (
         <p className="empty-message">✅ No tasks currently assigned. Great job!</p>
       )}

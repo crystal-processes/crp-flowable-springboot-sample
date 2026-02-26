@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { makeAuthenticatedRequest } from './utils/api'
+import CONFIG from './config'
 
 function ProcessesTab({ processes, loading, error, setError, successMessage, setSuccessMessage, fetchProcessInstances, fetchTasks }) {
   const [selectedProcess, setSelectedProcess] = useState(null)
@@ -7,7 +8,7 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
   const [businessKey, setBusinessKey] = useState('')
   const [startingProcess, setStartingProcess] = useState(false)
 
-  const startProcessInstance = async (e) => {
+  const startProcessInstance = useCallback(async (e) => {
     e.preventDefault()
 
     if (!selectedProcess) {
@@ -25,7 +26,7 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
         businessKey: businessKey || undefined
       }
 
-      const response = await makeAuthenticatedRequest('/process-api/runtime/process-instances', {
+      const response = await makeAuthenticatedRequest(CONFIG.ENDPOINTS.PROCESS_INSTANCES, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -48,7 +49,7 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
           fetchProcessInstances()
         }
         if (fetchTasks) {
-            fetchTasks()
+          fetchTasks()
         }
       } else {
         const errorData = await response.json()
@@ -60,7 +61,7 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
     } finally {
       setStartingProcess(false)
     }
-  }
+  }, [selectedProcess, businessKey, setError, setSuccessMessage, fetchProcessInstances, fetchTasks])
 
   return (
     <div className="tab-content">
@@ -71,12 +72,16 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
             <p className="loading-message">⏳ Loading processes from Flowable...</p>
           ) : processes.length > 0 ? (
             <div>
-              <div className="processes-list">
+              <div className="processes-list" role="region" aria-label="Available processes">
                 {processes.map((process) => (
                   <div
                     key={process.id}
                     className={`process-item ${selectedProcess?.id === process.id ? 'selected' : ''}`}
                     onClick={() => setSelectedProcess(process)}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selectedProcess?.id === process.id}
+                    aria-label={`Process: ${process.name}`}
                   >
                     <h4>{process.name}</h4>
                     <p className="process-id">Key: {process.key}</p>
@@ -134,9 +139,9 @@ function ProcessesTab({ processes, loading, error, setError, successMessage, set
                 setShowStartForm(false)
                 setSelectedProcess(null)
                 setBusinessKey('')
-                se
               }}
               className="btn-secondary"
+              aria-label="Cancel process start"
             >
               Cancel
             </button>
