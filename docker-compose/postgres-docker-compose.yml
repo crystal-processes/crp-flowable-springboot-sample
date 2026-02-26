@@ -12,8 +12,8 @@ services:
 
   greenmail:
     image: greenmail/standalone:1.6.5
-    environment:
-      - JAVA_OPTS=-Dgreenmail.verbose
+#    environment:
+#      - JAVA_OPTS=-Dgreenmail.verbose
     ports:
       - 3025:3025 # SMTP
       - 3110:3110 # POP3

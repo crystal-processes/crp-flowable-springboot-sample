@@ -19,7 +19,7 @@
 		<java.version>17</java.version>
 		<flowable.version>7.1.0</flowable.version>
 
-		<crp-flowable-ex.version>0.0.7</crp-flowable-ex.version>
+		<crp-flowable-ex.version>0.0.8-SNAPSHOT</crp-flowable-ex.version>
 		<application.name>acme</application.name>
 		<nodejs.version>v18.19.0</nodejs.version>
 		<npm.version>10.2.3</npm.version>

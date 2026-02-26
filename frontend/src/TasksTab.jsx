@@ -1,21 +1,22 @@
 import { useState } from 'react'
 import FormEngine from './FormEngine'
 
-function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance, fetchProcessInstances, taskFilter, setTaskFilter, taskLimit, taskFilterType, setTaskFilterType }) {
+function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, onNavigateToInstance, fetchProcessInstances,
+    taskFilter, setTaskFilter, taskLimit, taskFilterType, setTaskFilterType, showFinishedTasks, setShowFinishedTasks }) {
   const [formSubmitMessage, setFormSubmitMessage] = useState(null)
 
   const handleFilterChange = (e) => {
     const newFilter = e.target.value
     setTaskFilter(newFilter)
     // Fetch tasks with new filter and current filter type
-    fetchTasks(newFilter, taskFilterType)
+    fetchTasks(showFinishedTasks, newFilter, taskFilterType)
   }
 
   const handleFilterTypeChange = (e) => {
     const newType = e.target.value
     setTaskFilterType(newType)
     // Fetch tasks with new filter type and current filter
-    fetchTasks(taskFilter, newType)
+    fetchTasks(showFinishedTasks, taskFilter, newType)
   }
 
   const handleFormSubmit = (formData, result) => {
@@ -23,7 +24,7 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
     setSelectedTask(null)
 
     // Refresh tasks and process instances to reflect any changes
-    fetchTasks()
+    fetchTasks(showFinishedTasks, taskFilter, taskFilterType)
     if (fetchProcessInstances) {
       fetchProcessInstances()
     }
@@ -35,6 +36,13 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
   const handleFormClose = () => {
     setSelectedTask(null)
   }
+
+  const handleShowFinishedTasks = () => {
+    setShowFinishedTasks(!showFinishedTasks)
+    setSelectedTask(null)
+    fetchTasks(showFinishedTasks, taskFilter, taskFilterType)
+  }
+
   return (
     <div className="tab-content">
       {formSubmitMessage && (
@@ -46,6 +54,10 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
 
       {/* Task Filter Input */}
       <div className="task-filter-section">
+          <label>
+        <input type="checkbox" name="showFinishedTasks" value={showFinishedTasks} onChange={handleShowFinishedTasks}/>
+        <br/> Finished
+        </label>
         <select
           value={taskFilterType}
           onChange={handleFilterTypeChange}
@@ -67,7 +79,7 @@ function TasksTab({ tasks, selectedTask, setSelectedTask, loading, fetchTasks, o
           <button
             onClick={() => {
               setTaskFilter('')
-              fetchTasks('', taskFilterType)
+              fetchTasks(showFinishedTasks, '', taskFilterType)
             }}
             className="btn-clear-filter"
           >

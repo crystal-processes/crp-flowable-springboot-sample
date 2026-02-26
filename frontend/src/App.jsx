@@ -24,18 +24,19 @@ function App() {
   const [taskFilter, setTaskFilter] = useState('')
   const [taskLimit, setTaskLimit] = useState(50)
   const [taskFilterType, setTaskFilterType] = useState('name')
+  const [showFinishedTasks, setShowFinishedTasks] = useState(false)
 
   // Fetch tasks from Flowable REST API
-  // Endpoint: POST /process-api/runtime/tasks
-  const fetchTasks = async (filter = taskFilter, filterType = taskFilterType) => {
+  const fetchTasks = async (showFinishedTasks = showFinishedTasks, filter = taskFilter, filterType = taskFilterType) => {
     setLoading(true)
     setError(null)
     try {
       const requestBody = {
         start: 0,
         size: taskLimit,
-        sort: 'createTime',
-        order: 'desc'
+        sort: 'startTime',
+        order: 'desc',
+        finished: showFinishedTasks
       }
 
       // Add filter parameter based on selected filter type
@@ -58,7 +59,7 @@ function App() {
         }
       }
 
-      const response = await makeAuthenticatedRequest('/process-api/query/tasks', {
+      const response = await makeAuthenticatedRequest('/process-api/query/historic-task-instances', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -129,7 +130,7 @@ function App() {
 
   // Auto-load tasks on component mount
   useEffect(() => {
-    fetchTasks()
+    fetchTasks(false, undefined, undefined)
     fetchProcessInstances()
   }, [])
 
@@ -142,7 +143,7 @@ function App() {
     if (activeTab === 'tasks') {
       // Refresh tasks every 10 seconds when on Tasks tab
       interval = setInterval(() => {
-        fetchTasks()
+        fetchTasks(showFinishedTasks, taskFilter, taskFilterType)
       }, 10000)
     } else if (activeTab === 'instances') {
       // Refresh process instances every 10 seconds when on Process Instances tab
@@ -152,7 +153,7 @@ function App() {
     } else if (activeTab === 'status') {
       // Refresh tasks and processes every 10 seconds when on Status tab
       interval = setInterval(() => {
-        fetchTasks()
+        fetchTasks(showFinishedTasks, taskFilter, taskFilterType)
         fetchProcesses()
       }, 10000)
     }
@@ -261,6 +262,8 @@ function App() {
               taskLimit={taskLimit}
               taskFilterType={taskFilterType}
               setTaskFilterType={setTaskFilterType}
+              showFinishedTasks={showFinishedTasks}
+              setShowFinishedTasks={setShowFinishedTasks}
             />
           )}
 

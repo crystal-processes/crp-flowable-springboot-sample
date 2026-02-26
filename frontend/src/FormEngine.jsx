@@ -47,6 +47,9 @@ function FormEngine({ taskId, onSubmit, onClose }) {
         }
 
         setComponent(() => FormModel)
+
+        // Fetch task variables and populate formData
+        await fetchTaskVariables()
       } catch (err) {
         console.error('Error loading form component:', err)
         setError(`Failed to load form: ${err.message}`)
@@ -60,6 +63,34 @@ function FormEngine({ taskId, onSubmit, onClose }) {
       loadFormComponent()
     }
   }, [taskId])
+
+  const fetchTaskVariables = async () => {
+    try {
+      const response = await makeAuthenticatedRequest(
+        `/process-api/runtime/tasks/${taskId}/variables`
+      )
+
+      if (response.ok) {
+        const variables = await response.json()
+        console.log('Task variables loaded:', variables)
+
+        // Convert array of variables to object for form data
+        if (Array.isArray(variables)) {
+          const variablesObject = {}
+          variables.forEach((variable) => {
+            variablesObject[variable.name] = variable.value
+          })
+          setFormData(variablesObject)
+          console.log('Form data populated from variables:', variablesObject)
+        }
+      } else if (response.status !== 404) {
+        console.warn('Failed to fetch task variables:', response.statusText)
+      }
+    } catch (err) {
+      console.warn('Error fetching task variables:', err.message)
+      // Don't throw error, just log warning - form can still work without pre-populated data
+    }
+  }
 
   const handleFormDataChange = (newData) => {
     setFormData(prevData => ({
@@ -77,6 +108,13 @@ function FormEngine({ taskId, onSubmit, onClose }) {
     setError(null)
 
     try {
+      // Convert formData object to variables array format
+      const variables = Object.entries(formData).map(([name, value]) => ({
+        name: name,
+        type: typeof value,
+        value: value
+      }))
+
       const response = await makeAuthenticatedRequest(
         `/process-api/runtime/tasks/${taskId}`,
         {
@@ -85,16 +123,10 @@ function FormEngine({ taskId, onSubmit, onClose }) {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-              'action': 'complete',
-              'outcome': 'submitted',
-              'variables': [
-                  {'name': 'formName',
-                  'type': 'string',
-                  'value': '${formData.name}',
-                  }
-                  ]
-              }
-              )
+            'action': 'complete',
+            'outcome': 'submitted',
+            'variables': variables
+          })
         }
       )
 
