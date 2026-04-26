@@ -1,0 +1,9 @@
+file_watcher_for_autocomplete = false
+
+system_prompt_id = "crp-flowable-developer"
+
+[[mcp_servers]]
+name = "crp-flowable-mcp"
+transport = "http"
+url = "http://localhost:8090/mcp"
+headers = { Authorization = "Basic YWRtaW46dGVzdA==" }
