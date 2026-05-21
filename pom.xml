@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.4</version>
+		<version>4.1.0-RC1</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.github.crystal-processes</groupId>
@@ -16,14 +16,28 @@
 	<properties>
 		<start-class>org.crp.flowable.springboot.sample.AcmeApplication</start-class>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>17</java.version>
-		<flowable.version>7.1.0</flowable.version>
+		<java.version>21</java.version>
+		<flowable.version>8.0.0</flowable.version>
 
-		<crp-flowable-ex.version>0.0.8-SNAPSHOT</crp-flowable-ex.version>
+		<crp-flowable-ex.version>0.0.11-SNAPSHOT</crp-flowable-ex.version>
 		<application.name>acme</application.name>
 		<nodejs.version>v18.19.0</nodejs.version>
 		<npm.version>10.2.3</npm.version>
+		<lombok.version>1.18.38</lombok.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>crp-snapshots</id>
+			<name>CRP Snapshots</name>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -45,7 +59,6 @@
 		<dependency>
 			<groupId>org.springframework.integration</groupId>
 			<artifactId>spring-integration-mail</artifactId>
-			<version>6.4.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.angus</groupId>
@@ -56,13 +69,25 @@
 			<artifactId>crp-flowable-ai</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.github.crystal-processes</groupId>
+			<artifactId>crp-flowable-mcp-tools</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.crystal-processes</groupId>
+			<artifactId>crp-flowable-ui</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-ollama</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.4</version>
+			<version>42.7.3</version>
 		</dependency>
 
 		<dependency>
@@ -75,7 +100,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.30</version>
+			<version>1.18.38</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -92,7 +117,7 @@
 		<dependency>
 			<groupId>org.apache.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>4.0.16</version>
+			<version>4.0.28</version>
 			<scope>test</scope>
 			<type>pom</type>
 		</dependency>
@@ -133,7 +158,7 @@
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-bom</artifactId>
-                <version>1.1.2</version>
+                <version>1.1.6</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -156,7 +181,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>1.18.38</version>
+							<version>${lombok.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -173,14 +198,14 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.0.2</version>
+				<version>3.4.2</version>
 			</plugin>
 
 			<!-- Groovy plugin -->
 			<plugin>
 				<groupId>org.codehaus.gmavenplus</groupId>
 				<artifactId>gmavenplus-plugin</artifactId>
-				<version>3.0.2</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -199,7 +224,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.5.0</version>
 				<configuration>
 					<includes>
 						<include>**/*Test.java</include>
@@ -210,7 +235,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>ZipToDeployableApp</id>
@@ -238,69 +263,6 @@
 						<type>jar</type>
 					</dependency>
 				</dependencies>
-			</plugin>
-			<!-- Frontend Maven Plugin for React build -->
-			<plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.15.4</version>
-				<configuration>
-					<workingDirectory>frontend</workingDirectory>
-					<nodeVersion>${nodejs.version}</nodeVersion>
-					<npmVersion>${npm.version}</npmVersion>
-				</configuration>
-				<executions>
-					<execution>
-						<id>install node and npm</id>
-						<goals>
-							<goal>install-node-and-npm</goal>
-						</goals>
-						<phase>generate-resources</phase>
-					</execution>
-					<execution>
-						<id>npm install</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>generate-resources</phase>
-						<configuration>
-							<arguments>install</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm run build</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>generate-resources</phase>
-						<configuration>
-							<arguments>run build</arguments>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Copy frontend build to static resources -->
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.3.1</version>
-				<executions>
-					<execution>
-						<id>copy-frontend-dist</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/src/main/resources/static</outputDirectory>
-							<resources>
-								<resource>
-									<directory>frontend/dist</directory>
-									<filtering>false</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
         </plugins>
 		<pluginManagement>
@@ -425,7 +387,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>3.1.0</version>
+						<version>3.3.0</version>
 						<executions>
 							<execution>
 								<id>downloadApplicationModel</id>

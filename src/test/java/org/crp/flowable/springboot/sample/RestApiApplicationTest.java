@@ -33,7 +33,7 @@ public class RestApiApplicationTest {
     public void testRestApiIntegration() {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/process-api/repository/process-definitions";
 
-        ResponseEntity<DataResponse<ProcessDefinitionResponse>> response = restTemplate
+        ResponseEntity<DataResponse<ProcessDefinitionResponse>> response = restTemplate.withBasicAuth("admin", "test")
             .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
 
             });
@@ -55,7 +55,8 @@ public class RestApiApplicationTest {
     public void testCmmnRestApiIntegrationNotFound() {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/cmmn-api/cmmn-repository/case-definitions/does-not-exist";
 
-        ResponseEntity<String> response = restTemplate.getForEntity(processDefinitionsUrl, String.class);
+        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "test")
+                .getForEntity(processDefinitionsUrl, String.class);
 
         BasicJsonTester jsonTester = new BasicJsonTester(getClass());
 
@@ -72,7 +73,7 @@ public class RestApiApplicationTest {
     public void testDmnRestApiIntegration() {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/dmn-api/dmn-repository/deployments";
 
-        ResponseEntity<DataResponse<DmnDeploymentResponse>> response = restTemplate
+        ResponseEntity<DataResponse<DmnDeploymentResponse>> response = restTemplate.withBasicAuth("admin", "test")
             .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
             });
 
@@ -89,7 +90,7 @@ public class RestApiApplicationTest {
     public void testIdmRestApiIntegration() {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/idm-api/groups";
 
-        ResponseEntity<DataResponse<GroupResponse>> response = restTemplate
+        ResponseEntity<DataResponse<GroupResponse>> response = restTemplate.withBasicAuth("admin", "test")
             .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
             });
 
@@ -110,7 +111,7 @@ public class RestApiApplicationTest {
     public void testExternalJobRestApiIntegration() {
         String url = "http://localhost:" + serverPort + "/external-job-api/jobs";
 
-        ResponseEntity<DataResponse<JsonNode>> response = restTemplate
+        ResponseEntity<DataResponse<JsonNode>> response = restTemplate.withBasicAuth("admin", "test")
                 .exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
                 });
 
@@ -127,7 +128,8 @@ public class RestApiApplicationTest {
     public void testExternalJobRestApiIntegrationNotFound() {
         String url = "http://localhost:" + serverPort + "/external-job-api/jobs/does-not-exist";
 
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "test")
+                .getForEntity(url, String.class);
 
         BasicJsonTester jsonTester = new BasicJsonTester(getClass());
 

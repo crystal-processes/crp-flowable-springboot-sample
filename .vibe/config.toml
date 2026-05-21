@@ -1,9 +1,47 @@
 file_watcher_for_autocomplete = false
-
 system_prompt_id = "crp-flowable-developer"
 
 [[mcp_servers]]
 name = "crp-flowable-mcp"
 transport = "http"
 url = "http://localhost:8090/mcp"
-headers = { Authorization = "Basic YWRtaW46dGVzdA==" }
+
+[mcp_servers.headers]
+Authorization = "Basic YWRtaW46dGVzdA=="
+
+[tools.read_file]
+allowlist = [
+    "/mnt/windows/Users/mgrof/crp/crp-flowable-ex/*",
+]
+
+[tools.bash]
+allowlist = [
+    "./mvnw",
+    "/home/martin/.m2/repository/io/github/crystal-processes/crp-flowable-ai/0.0.11-SNAPSHOT/*",
+    "/home/martin/.m2/repository/io/github/crystal-processes/crp-flowable-assert/0.0.11-SNAPSHOT/*",
+    "/home/martin/.m2/repository/io/github/crystal-processes/crp-flowable-ex-bom/0.0.11-SNAPSHOT/*",
+    "/home/martin/.m2/repository/io/github/crystal-processes/crp-flowable-ex/*",
+    "/home/martin/.m2/repository/io/github/crystal-processes/crp-flowable-shell/0.0.11-SNAPSHOT/*",
+    "/home/martin/.m2/repository/org/springframework/boot/spring-boot-starter-parent/*",
+    "/mnt/windows/Users/mgrof/crp/crp-flowable-ex/*",
+    "cat",
+    "cd",
+    "curl",
+    "echo",
+    "grep",
+    "head",
+    "ls",
+    "python3",
+    "sort",
+    "stat",
+    "tail",
+    "wc",
+    "which",
+    "xmllint",
+]
+
+[tools.search_replace]
+permission = "always"
+allowlist = [
+    "/mnt/windows/Users/mgrof/crp/crp-flowable-ex/crp-flowable-shell/*",
+]
