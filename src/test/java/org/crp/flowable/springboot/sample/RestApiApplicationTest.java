@@ -7,135 +7,121 @@ import org.flowable.rest.service.api.identity.GroupResponse;
 import org.flowable.rest.service.api.repository.ProcessDefinitionResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.boot.test.json.BasicJsonTester;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @AcmeApplicationTest
-@AutoConfigureWebClient(registerRestTemplate = true)
+@AutoConfigureWebTestClient
 public class RestApiApplicationTest {
 
     @Autowired
-    private TestRestTemplate restTemplate;
-
-    @LocalServerPort
-    private int serverPort;
+    private WebTestClient webTestClient;
 
     @Test
     public void testRestApiIntegration() {
-        String processDefinitionsUrl = "http://localhost:" + serverPort + "/process-api/repository/process-definitions";
-
-        ResponseEntity<DataResponse<ProcessDefinitionResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-
+        webTestClient.get()
+            .uri("/process-api/repository/process-definitions")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(new ParameterizedTypeReference<DataResponse<ProcessDefinitionResponse>>() {})
+            .consumeWith(response -> {
+                DataResponse<ProcessDefinitionResponse> processDefinitions = response.getResponseBody();
+                assertThat(processDefinitions).isNotNull();
+                assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(4L);
+                assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
+                        .extracting(ProcessDefinitionResponse::getKey)
+                        .containsExactlyInAnyOrder("P001-helloWorld", "P002-processInsuranceEvent",
+                                "P003-jpaProcessInsuranceEvent", "P004-jpaServicesProcessInsuranceEvent");
             });
-
-        assertThat(response.getStatusCode())
-            .as("Status code")
-            .isEqualTo(HttpStatus.OK);
-        DataResponse<ProcessDefinitionResponse> processDefinitions = response.getBody();
-        assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(4L);
-        assert processDefinitions != null;
-        assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
-                .extracting(ProcessDefinitionResponse::getKey)
-                .containsExactlyInAnyOrder("P001-helloWorld", "P002-processInsuranceEvent",
-                        "P003-jpaProcessInsuranceEvent", "P004-jpaServicesProcessInsuranceEvent");
     }
 
     @Test
     public void testCmmnRestApiIntegrationNotFound() {
-        String processDefinitionsUrl = "http://localhost:" + serverPort + "/cmmn-api/cmmn-repository/case-definitions/does-not-exist";
-
-        ResponseEntity<String> response = restTemplate.getForEntity(processDefinitionsUrl, String.class);
-
         BasicJsonTester jsonTester = new BasicJsonTester(getClass());
 
-        assertThat(jsonTester.from(response.getBody())).isEqualToJson("{"
-            + "\"message\": \"Not found\","
-            + "\"exception\": \"no deployed case definition found with id 'does-not-exist'\""
-            + "}");
-        assertThat(response.getStatusCode())
-            .as("Status code")
-            .isEqualTo(HttpStatus.NOT_FOUND);
+        webTestClient.get()
+            .uri("/cmmn-api/cmmn-repository/case-definitions/does-not-exist")
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectBody(String.class)
+            .consumeWith(response -> {
+                String body = response.getResponseBody();
+                assertThat(jsonTester.from(body)).isEqualToJson("{" +
+                        "\"message\": \"Not found\"," +
+                        "\"exception\": \"no deployed case definition found with id 'does-not-exist'\"" +
+                        "}");
+            });
     }
 
     @Test
     public void testDmnRestApiIntegration() {
-        String processDefinitionsUrl = "http://localhost:" + serverPort + "/dmn-api/dmn-repository/deployments";
-
-        ResponseEntity<DataResponse<DmnDeploymentResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+        webTestClient.get()
+            .uri("/dmn-api/dmn-repository/deployments")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(new ParameterizedTypeReference<DataResponse<DmnDeploymentResponse>>() {})
+            .consumeWith(response -> {
+                DataResponse<DmnDeploymentResponse> deployments = response.getResponseBody();
+                assertThat(deployments).isNotNull();
+                assertThat(deployments.getData()).isEmpty();
+                assertThat(deployments.getTotal()).isZero();
             });
-
-        assertThat(response.getStatusCode())
-            .as("Status code")
-            .isEqualTo(HttpStatus.OK);
-        DataResponse<DmnDeploymentResponse> deployments = response.getBody();
-        assertThat(deployments).isNotNull();
-        assertThat(deployments.getData())
-            .isEmpty();
-        assertThat(deployments.getTotal()).isZero();
     }
+
     @Test
     public void testIdmRestApiIntegration() {
-        String processDefinitionsUrl = "http://localhost:" + serverPort + "/idm-api/groups";
-
-        ResponseEntity<DataResponse<GroupResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+        webTestClient.get()
+            .uri("/idm-api/groups")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(new ParameterizedTypeReference<DataResponse<GroupResponse>>() {})
+            .consumeWith(response -> {
+                DataResponse<GroupResponse> groups = response.getResponseBody();
+                assertThat(groups).isNotNull();
+                assertThat(groups.getData())
+                        .extracting(GroupResponse::getId, GroupResponse::getType, GroupResponse::getName, GroupResponse::getUrl)
+                        .containsExactly(
+                                tuple("user", "security-role", "users", null)
+                        );
+                assertThat(groups.getTotal()).isEqualTo(1);
             });
-
-        assertThat(response.getStatusCode())
-            .as("Status code")
-            .isEqualTo(HttpStatus.OK);
-        DataResponse<GroupResponse> groups = response.getBody();
-        assertThat(groups).isNotNull();
-        assertThat(groups.getData())
-            .extracting(GroupResponse::getId, GroupResponse::getType, GroupResponse::getName, GroupResponse::getUrl)
-            .containsExactly(
-                tuple("user", "security-role", "users", null)
-            );
-        assertThat(groups.getTotal()).isEqualTo(1);
     }
 
     @Test
     public void testExternalJobRestApiIntegration() {
-        String url = "http://localhost:" + serverPort + "/external-job-api/jobs";
-
-        ResponseEntity<DataResponse<JsonNode>> response = restTemplate
-                .exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-                });
-
-        assertThat(response.getStatusCode())
-                .as("Status code")
-                .isEqualTo(HttpStatus.OK);
-        DataResponse<JsonNode> jobs = response.getBody();
-        assertThat(jobs).isNotNull();
-        assertThat(jobs.getTotal()).isZero();
-        assertThat(jobs.getData()).isEmpty();
+        webTestClient.get()
+            .uri("/external-job-api/jobs")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(new ParameterizedTypeReference<DataResponse<JsonNode>>() {})
+            .consumeWith(response -> {
+                DataResponse<JsonNode> jobs = response.getResponseBody();
+                assertThat(jobs).isNotNull();
+                assertThat(jobs.getTotal()).isZero();
+                assertThat(jobs.getData()).isEmpty();
+            });
     }
 
     @Test
     public void testExternalJobRestApiIntegrationNotFound() {
-        String url = "http://localhost:" + serverPort + "/external-job-api/jobs/does-not-exist";
-
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-
         BasicJsonTester jsonTester = new BasicJsonTester(getClass());
 
-        assertThat(jsonTester.from(response.getBody())).isEqualToJson("{"
-                + "\"message\": \"Not found\","
-                + "\"exception\": \"Could not find external worker job with id 'does-not-exist'.\""
-                + "}");
-        assertThat(response.getStatusCode())
-                .as("Status code")
-                .isEqualTo(HttpStatus.NOT_FOUND);
+        webTestClient.get()
+            .uri("/external-job-api/jobs/does-not-exist")
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectBody(String.class)
+            .consumeWith(response -> {
+                String body = response.getResponseBody();
+                assertThat(jsonTester.from(body)).isEqualToJson("{" +
+                        "\"message\": \"Not found\"," +
+                        "\"exception\": \"Could not find external worker job with id 'does-not-exist'.\"" +
+                        "}");
+            });
     }
 }

@@ -1,7 +1,5 @@
 package org.crp.flowable.springboot.sample.services.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.crp.flowable.springboot.sample.AcmeApplicationTest;
 import org.crp.flowable.springboot.sample.services.ContractService;
 import org.flowable.engine.RuntimeService;
@@ -11,7 +9,9 @@ import org.flowable.task.api.Task;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
@@ -32,11 +32,11 @@ class DefaultReportServiceTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     ContractService mockContractService;
 
     @Test
-    void reportForRunningInstance() throws JsonProcessingException {
+    void reportForRunningInstance() throws JacksonException {
         Mockito.when(mockContractService.getContract("reportForRunningInstance")).thenReturn(
                 objectMapper.readTree("""
                         {
@@ -58,7 +58,7 @@ class DefaultReportServiceTest {
         );
     }
     @Test
-    void reportForFinishedInstance() throws JsonProcessingException {
+    void reportForFinishedInstance() throws JacksonException {
         Mockito.when(mockContractService.getContract("reportForFinishedInstance")).thenReturn(
                 objectMapper.readTree("""
                         {

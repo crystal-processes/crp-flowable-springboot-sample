@@ -49,8 +49,8 @@ class InsuranceEventJpaTest {
     @AfterEach
     @Transactional
     void 'remove entities'() {
-        accountRepository.deleteAll()
         contractRepository.deleteAll()
+        accountRepository.deleteAll()
     }
 
     @Test
