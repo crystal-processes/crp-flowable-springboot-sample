@@ -47,10 +47,10 @@ public class DefaultReportService implements ReportService {
                     JsonNode account = jsonContract.get("account");
                     if (account.has("id")) {
                         // version 0.2.3
-                        objectNode.put("account", account.get("id").asText());
+                        objectNode.put("account", account.get("id").asString());
                     } else {
                         // version 0.2.2
-                        objectNode.put("account", account.asText());
+                        objectNode.put("account", account.asString());
                     }
                 } else {
                     throw new RuntimeException("Unexpected json contract format in process " + process.getId());
