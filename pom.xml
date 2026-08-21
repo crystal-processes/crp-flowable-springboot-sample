@@ -19,7 +19,7 @@
 		<java.version>17</java.version>
 		<flowable.version>8.0.0</flowable.version>
 		<crp-flowable-ex.version>0.0.11</crp-flowable-ex.version>
-		<spring-ai.version>1.1.8</spring-ai.version>
+		<spring-ai.version>2.0.0</spring-ai.version>
 		<application.name>acme</application.name>
 	</properties>
 	<dependencies>
@@ -35,6 +35,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webclient</artifactId>
+		</dependency>
+		<dependency>
 			<!-- vulnerability fix for version 1.4.11 -->
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -48,7 +52,6 @@
 			<version>1.5.25</version>
 			<scope>compile</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -63,48 +66,53 @@
 			<artifactId>spring-ai-tika-document-reader</artifactId>
 			<version>${spring-ai.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.5.4</version>
 		</dependency>
-
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-pgvector-store</artifactId>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-ollama</artifactId>
+			<version>${spring-ai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-vector-store-pgvector</artifactId>
             <version>${spring-ai.version}</version>
-        </dependency>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-pgvector-store</artifactId>
+			<version>${spring-ai.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.20</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-webtestclient</artifactId>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-webtestclient</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>io.github.crystal-processes</groupId>
 			<artifactId>crp-flowable-assert</artifactId>
@@ -124,14 +132,40 @@
 			<version>2.3-groovy-4.0</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>2.0.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-junit-jupiter</artifactId>
+			<version>2.0.5</version>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <version>2.0.5</version>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>2.2.224</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
-
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<!-- Override Spring Boot 4.1.0's Groovy 5.0.6 with Groovy 4.0.28 -->
@@ -144,7 +178,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 	<build>
 		<extensions>
 			<extension>
@@ -168,7 +201,6 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.0.2</version>
 			</plugin>
-
 			<!-- Groovy plugin -->
 			<plugin>
 				<groupId>org.codehaus.gmavenplus</groupId>
@@ -234,7 +266,6 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -279,12 +310,11 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
 	<scm>
 		<url>https://github.com/crystal-processes/crp-flowable-springboot-sample</url>
 		<connection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</connection>
 		<developerConnection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</developerConnection>
-	  <tag>crp-flowable-springboot-sample-0.0.2</tag>
+		<tag>crp-flowable-springboot-sample-0.0.2</tag>
 	</scm>
 	<licenses>
 		<license>
@@ -299,7 +329,6 @@
 			<organization>crystal processes</organization>
 		</developer>
 	</developers>
-
 	<profiles>
 		<profile>
 			<id>postgresql</id>
@@ -313,7 +342,6 @@
 				<postgres.docker.wait.log>PostgreSQL init process complete</postgres.docker.wait.log>
 				<postgres.docker.wait.time>10000</postgres.docker.wait.time>
 			</properties>
-
 			<build>
 				<plugins>
 					<plugin>
@@ -350,7 +378,6 @@
 				</plugins>
 			</build>
 		</profile>
-
 		<profile>
 			<id>downloadModel</id>
 			<build>
@@ -461,5 +488,4 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
-
 </project>

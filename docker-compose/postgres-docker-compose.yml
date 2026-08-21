@@ -1,10 +1,7 @@
-# Use postgres/example user/password credentials
-version: '3.1'
-
 services:
 
   db:
-    image: pgvector/pgvector
+    image: pgvector/pgvector:pg17
     restart: always
     environment:
       POSTGRES_PASSWORD: flowable
@@ -12,3 +9,8 @@ services:
       POSTGRES_DB: flowable
     ports:
       - "5432:5432"
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
