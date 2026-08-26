@@ -9,6 +9,8 @@ import org.crp.flowable.springboot.sample.services.impl.DefaultContractService;
 import org.crp.flowable.springboot.sample.services.impl.DefaultInsuranceEventService;
 import org.crp.flowable.springboot.sample.services.impl.DefaultMoneyService;
 import org.crp.flowable.springboot.sample.services.impl.DefaultReportService;
+import org.flowable.spring.SpringProcessEngineConfiguration;
+import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.springframework.ai.embedding.BatchingStrategy;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.TokenCountBatchingStrategy;
@@ -54,6 +56,11 @@ public class AcmeAppConfiguration {
                 .distanceType(IdentityAwarePgVectorStore.PgDistanceType.COSINE_DISTANCE)
                 .indexType(IdentityAwarePgVectorStore.PgIndexType.HNSW)
                 .build();
+    }
+
+    @Bean
+    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> engineConfigurationConfigurer() {
+        return configuration -> configuration.setEnableEntityLinks(true);
     }
 
 }

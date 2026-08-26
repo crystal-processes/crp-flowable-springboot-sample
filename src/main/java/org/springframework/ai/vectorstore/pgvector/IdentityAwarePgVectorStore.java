@@ -350,7 +350,21 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
         String nativeFilterExpression = (request.getFilterExpression() != null)
                 ? this.filterExpressionConverter.convertExpression(request.getFilterExpression()) : "";
 
-        String jsonPathFilter = " AND EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_::uuid=id and I.SCOPE_TYPE_ = 'vector' and I.USER_ID_ = '"+getCurrentUser()+"') ";
+        String jsonPathFilter =
+                // as user must have identity link to vector
+                " AND (EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_::uuid=id and I.SCOPE_TYPE_ = 'vector' and I.USER_ID_ = '" + getCurrentUser() + "') " +
+                // as user must have access to all entities referred from the vector
+                """  
+                     AND
+                     NOT EXISTS (
+                                SELECT 1
+                                FROM ACT_RU_ENTITYLINK E
+                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (I.proc_inst_id_ = E.scope_id_ AND I.user_id_ = '""" + getCurrentUser() + """
+                ')
+                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null
+                    )
+                )
+                """;
 
         if (StringUtils.hasText(nativeFilterExpression)) {
             jsonPathFilter = " AND " + nativeFilterExpression + " ";

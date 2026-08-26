@@ -27,6 +27,12 @@
         <flowable:field name="users">
           <flowable:expression>${users}</flowable:expression>
         </flowable:field>
+        <flowable:field name="entities">
+          <flowable:expression>${entities}</flowable:expression>
+        </flowable:field>
+        <flowable:field name="documentsVariableName">
+          <flowable:expression>documents</flowable:expression>
+        </flowable:field>
       </extensionElements>
     </serviceTask>
     

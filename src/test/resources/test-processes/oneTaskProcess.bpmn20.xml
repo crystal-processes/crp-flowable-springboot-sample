@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://flowable.org/test">
+
+  <process id="oneTaskProcess" name="One Task Process" isExecutable="true">
+    
+    <userTask id="addToVectorStoreTask" name="Add to Vector Store"/>
+    
+    <startEvent id="theStart">
+      <outgoing>toAddVectorStore</outgoing>
+    </startEvent>
+    
+    <endEvent id="theEnd">
+      <incoming>fromAddVectorStore</incoming>
+    </endEvent>
+    
+    <sequenceFlow id="toAddVectorStore" sourceRef="theStart" targetRef="addToVectorStoreTask" />
+    <sequenceFlow id="fromAddVectorStore" sourceRef="addToVectorStoreTask" targetRef="theEnd" />
+  </process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_oneTaskProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_oneTaskProcess" bpmnElement="oneTaskProcess">
+      <bpmndi:BPMNShape id="BPMNShape_theStart" bpmnElement="theStart">
+        <omgdc:Bounds x="100" y="100" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_addToVectorStoreTask" bpmnElement="addToVectorStoreTask">
+        <omgdc:Bounds x="200" y="80" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_theEnd" bpmnElement="theEnd">
+        <omgdc:Bounds x="350" y="100" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_toAddVectorStore" bpmnElement="toAddVectorStore">
+        <omgdi:waypoint x="136" y="118"/>
+        <omgdi:waypoint x="200" y="118"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_fromAddVectorStore" bpmnElement="fromAddVectorStore">
+        <omgdi:waypoint x="300" y="118"/>
+        <omgdi:waypoint x="350" y="118"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
