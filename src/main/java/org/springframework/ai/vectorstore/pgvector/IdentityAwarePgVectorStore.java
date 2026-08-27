@@ -355,13 +355,26 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
                 " AND (EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_::uuid=id and I.SCOPE_TYPE_ = 'vector' and I.USER_ID_ = '" + getCurrentUser() + "') " +
                 // as user must have access to all entities referred from the vector
                 """  
-                     AND
-                     NOT EXISTS (
+                     AND NOT EXISTS (
                                 SELECT 1
                                 FROM ACT_RU_ENTITYLINK E
-                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (I.proc_inst_id_ = E.scope_id_ AND I.user_id_ = '""" + getCurrentUser() + """
+                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (E.scope_type_ = 'bpmn' AND I.proc_inst_id_ = E.scope_id_ AND I.user_id_ = '""" + getCurrentUser() + """
                 ')
-                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null
+                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null AND E.scope_type_='bpmn'
+                    )
+                     AND NOT EXISTS (
+                                SELECT 1
+                                FROM ACT_RU_ENTITYLINK E
+                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (E.scope_type_ = 'task' AND I.task_id_ = E.scope_id_ AND I.user_id_ = '""" + getCurrentUser() + """
+                ')
+                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null AND E.scope_type_='task'
+                    )
+                    AND NOT EXISTS (
+                                SELECT 1
+                                FROM ACT_RU_ENTITYLINK E
+                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (E.scope_type_ = I.scope_type_ AND E.scope_id_ = I.scope_id_ AND I.user_id_ = '""\" + getCurrentUser() + ""\"
+                ')
+                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null AND E.scope_type_= I.scope_type_
                     )
                 )
                 """;
