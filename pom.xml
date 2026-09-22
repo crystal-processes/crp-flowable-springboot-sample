@@ -62,6 +62,11 @@
 			<version>${flowable.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.flowable</groupId>
+			<artifactId>flowable-spring-boot-starter-cmmn-rest</artifactId>
+			<version>${flowable.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-tika-document-reader</artifactId>
 			<version>${spring-ai.version}</version>

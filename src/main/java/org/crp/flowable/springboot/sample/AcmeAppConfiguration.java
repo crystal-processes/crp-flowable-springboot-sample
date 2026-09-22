@@ -9,6 +9,8 @@ import org.crp.flowable.springboot.sample.services.impl.DefaultContractService;
 import org.crp.flowable.springboot.sample.services.impl.DefaultInsuranceEventService;
 import org.crp.flowable.springboot.sample.services.impl.DefaultMoneyService;
 import org.crp.flowable.springboot.sample.services.impl.DefaultReportService;
+import org.flowable.cmmn.engine.configurator.CmmnEngineConfigurator;
+import org.flowable.cmmn.spring.SpringCmmnEngineConfiguration;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.springframework.ai.embedding.BatchingStrategy;
@@ -59,7 +61,14 @@ public class AcmeAppConfiguration {
     }
 
     @Bean
-    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> engineConfigurationConfigurer() {
+    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> enableEntityLinks(CmmnEngineConfigurator cmmnEngineConfigurator) {
+        return configuration -> {
+            configuration.setEnableEntityLinks(true);
+            configuration.addConfigurator(cmmnEngineConfigurator);
+        };
+    }
+    @Bean
+    public EngineConfigurationConfigurer<SpringCmmnEngineConfiguration> enableCmmnEntityLinks() {
         return configuration -> configuration.setEnableEntityLinks(true);
     }
 
