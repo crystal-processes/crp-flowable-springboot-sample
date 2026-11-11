@@ -1,16 +1,16 @@
 package org.crp.flowable.springboot.sample;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.flowable.common.rest.api.DataResponse;
 import org.flowable.dmn.rest.service.api.repository.DmnDeploymentResponse;
 import org.flowable.rest.service.api.identity.GroupResponse;
 import org.flowable.rest.service.api.repository.ProcessDefinitionResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.json.BasicJsonTester;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.webclient.test.autoconfigure.AutoConfigureWebClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @AcmeApplicationTest
-@AutoConfigureWebClient(registerRestTemplate = true)
+@AutoConfigureWebClient
 public class RestApiApplicationTest {
 
     @Autowired
@@ -34,9 +34,7 @@ public class RestApiApplicationTest {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/process-api/repository/process-definitions";
 
         ResponseEntity<DataResponse<ProcessDefinitionResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-
-            });
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<ProcessDefinitionResponse>>() {});
 
         assertThat(response.getStatusCode())
             .as("Status code")
@@ -72,8 +70,7 @@ public class RestApiApplicationTest {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/dmn-api/dmn-repository/deployments";
 
         ResponseEntity<DataResponse<DmnDeploymentResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-            });
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<DmnDeploymentResponse>>() {});
 
         assertThat(response.getStatusCode())
             .as("Status code")
@@ -89,8 +86,7 @@ public class RestApiApplicationTest {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/idm-api/groups";
 
         ResponseEntity<DataResponse<GroupResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-            });
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<GroupResponse>>() {});
 
         assertThat(response.getStatusCode())
             .as("Status code")
@@ -110,8 +106,7 @@ public class RestApiApplicationTest {
         String url = "http://localhost:" + serverPort + "/external-job-api/jobs";
 
         ResponseEntity<DataResponse<JsonNode>> response = restTemplate
-                .exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-                });
+                .exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<JsonNode>>() {});
 
         assertThat(response.getStatusCode())
                 .as("Status code")

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.0</version>
+		<version>4.1.2</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.github.crystal-processes</groupId>
@@ -17,9 +17,8 @@
 		<start-class>org.crp.flowable.springboot.sample.AcmeApplication</start-class>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>17</java.version>
-		<flowable.version>7.0.0</flowable.version>
-
-		<crp-flowable-ex.version>0.0.6</crp-flowable-ex.version>
+		<flowable.version>8.0.0</flowable.version>
+		<crp-flowable-ex.version>0.0.12</crp-flowable-ex.version>
 		<application.name>acme</application.name>
 	</properties>
 	<dependencies>
@@ -38,14 +37,14 @@
 			<!-- vulnerability fix for version 1.4.11 -->
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.4.14</version>
+			<version>1.6.5</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<!-- vulnerability fix for version 1.4.11 -->
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.4.14</version>
+			<version>1.6.5</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -62,7 +61,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.4</version>
+			<version>42.7.14</version>
 		</dependency>
 
 		<dependency>
@@ -85,6 +84,26 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-webclient-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-resttestclient</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-test-autoconfigure</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webclient-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.github.crystal-processes</groupId>
 			<artifactId>crp-flowable-assert</artifactId>
 			<version>${crp-flowable-ex.version}</version>
@@ -92,10 +111,27 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.groovy</groupId>
-			<artifactId>groovy-all</artifactId>
-			<version>4.0.16</version>
+			<artifactId>groovy</artifactId>
+			<version>4.0.28</version>
 			<scope>test</scope>
-			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy-sql</artifactId>
+			<version>4.0.28</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy-json</artifactId>
+			<version>4.0.28</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy-templates</artifactId>
+			<version>4.0.28</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.spockframework</groupId>
@@ -140,6 +176,31 @@
 				<groupId>org.codehaus.gmavenplus</groupId>
 				<artifactId>gmavenplus-plugin</artifactId>
 				<version>3.0.2</version>
+				<configuration>
+					<targetBytecode>17</targetBytecode>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.groovy</groupId>
+						<artifactId>groovy</artifactId>
+						<version>4.0.28</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.groovy</groupId>
+						<artifactId>groovy-sql</artifactId>
+						<version>4.0.28</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.groovy</groupId>
+						<artifactId>groovy-json</artifactId>
+						<version>4.0.28</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.groovy</groupId>
+						<artifactId>groovy-templates</artifactId>
+						<version>4.0.28</version>
+					</dependency>
+				</dependencies>
 				<executions>
 					<execution>
 						<goals>

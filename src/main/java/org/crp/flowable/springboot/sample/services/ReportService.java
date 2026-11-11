@@ -1,6 +1,6 @@
 package org.crp.flowable.springboot.sample.services;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ArrayNode;
 
 public interface ReportService {
 

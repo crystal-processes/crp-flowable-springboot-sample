@@ -1,9 +1,9 @@
 package org.crp.flowable.springboot.sample.services.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.crp.flowable.springboot.sample.entities.Contract;
 import org.crp.flowable.springboot.sample.services.ReportService;
 import org.flowable.engine.HistoryService;
@@ -47,10 +47,10 @@ public class DefaultReportService implements ReportService {
                     JsonNode account = jsonContract.get("account");
                     if (account.has("id")) {
                         // version 0.2.3
-                        objectNode.put("account", account.get("id").asText());
+                        objectNode.put("account", account.get("id").asString());
                     } else {
                         // version 0.2.2
-                        objectNode.put("account", account.asText());
+                        objectNode.put("account", account.asString());
                     }
                 } else {
                     throw new RuntimeException("Unexpected json contract format in process " + process.getId());
