@@ -47,7 +47,6 @@
 			<version>1.6.5</version>
 			<scope>compile</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -95,6 +94,18 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-restclient</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>4.0.28</version>
+			<scope>test</scope>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-test-autoconfigure</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -110,27 +121,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.groovy</groupId>
-			<artifactId>groovy</artifactId>
-			<version>4.0.28</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.groovy</groupId>
-			<artifactId>groovy-sql</artifactId>
-			<version>4.0.28</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.groovy</groupId>
-			<artifactId>groovy-json</artifactId>
-			<version>4.0.28</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.groovy</groupId>
-			<artifactId>groovy-templates</artifactId>
-			<version>4.0.28</version>
+			<groupId>io.github.crystal-processes</groupId>
+			<artifactId>crp-flowable-groovy</artifactId>
+			<version>${crp-flowable-ex.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -146,6 +139,19 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Override Spring Boot 4.1.0's Groovy 5.0.6 with Groovy 4.0.28 -->
+			<dependency>
+				<groupId>org.apache.groovy</groupId>
+				<artifactId>groovy-bom</artifactId>
+				<version>4.0.33</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<extensions>
@@ -179,28 +185,6 @@
 				<configuration>
 					<targetBytecode>17</targetBytecode>
 				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.groovy</groupId>
-						<artifactId>groovy</artifactId>
-						<version>4.0.28</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.groovy</groupId>
-						<artifactId>groovy-sql</artifactId>
-						<version>4.0.28</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.groovy</groupId>
-						<artifactId>groovy-json</artifactId>
-						<version>4.0.28</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.groovy</groupId>
-						<artifactId>groovy-templates</artifactId>
-						<version>4.0.28</version>
-					</dependency>
-				</dependencies>
 				<executions>
 					<execution>
 						<goals>

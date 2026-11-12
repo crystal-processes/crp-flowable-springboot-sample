@@ -8,6 +8,7 @@ import org.flowable.rest.service.api.repository.ProcessDefinitionResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.json.BasicJsonTester;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.webclient.test.autoconfigure.AutoConfigureWebClient;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @AcmeApplicationTest
 @AutoConfigureWebClient
+@AutoConfigureTestRestTemplate
 public class RestApiApplicationTest {
 
     @Autowired
@@ -40,11 +42,11 @@ public class RestApiApplicationTest {
             .as("Status code")
             .isEqualTo(HttpStatus.OK);
         DataResponse<ProcessDefinitionResponse> processDefinitions = response.getBody();
-        assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(4L);
+        assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(5L);
         assert processDefinitions != null;
         assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
                 .extracting(ProcessDefinitionResponse::getKey)
-                .containsExactlyInAnyOrder("P001-helloWorld", "P002-processInsuranceEvent",
+                .containsExactlyInAnyOrder( "A001-migration", "P001-helloWorld", "P002-processInsuranceEvent",
                         "P003-jpaProcessInsuranceEvent", "P004-jpaServicesProcessInsuranceEvent");
     }
 
