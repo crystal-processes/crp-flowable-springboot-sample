@@ -50,7 +50,7 @@ public class HelloWorldProcessTest {
                 .as("All variables must be present in the history")
                 .extracting("name", "value")
                 .containsExactlyInAnyOrder(Tuple.tuple("initiator", null), Tuple.tuple("greeting", "Hello World!"));
-        path.addAll(List.of("theSayHelloUserTask-theEnd", "theEnd"));
+        path.addAll(List.of("theSayHelloUserTask-theEnd", "theEndUpdated"));
         assertThat(helloWorldProcess).inHistory()
                 .as("The hello world process must pass through all activities")
                 .activities()
@@ -94,7 +94,7 @@ public class HelloWorldProcessTest {
                 .as("All variables must be present in the history")
                 .extracting("name", "value")
                 .containsExactlyInAnyOrder(Tuple.tuple("initiator", null), Tuple.tuple("greeting", "Hello World!"));
-        path.addAll(List.of("theSayHelloUserTask-theEnd", "theEnd"));
+        path.addAll(List.of("theSayHelloUserTask-theEnd", "theEndUpdated"));
         assertThat(historyService.createHistoricActivityInstanceQuery().processInstanceId(helloWorldProcess.getId()).orderByHistoricActivityInstanceStartTime().asc().list())
                 .as("The hello world process must pass through all activities")
                 .extracting(HistoricActivityInstance::getActivityId)

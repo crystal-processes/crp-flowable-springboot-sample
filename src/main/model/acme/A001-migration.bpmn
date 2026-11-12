@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test">
+  <process id="A001-migration" name="Migration Process" isExecutable="true">
+	  <documentation>Process that starts with a timer event and executes a script task for migration purposes.</documentation>
+	  <startEvent id="timerStart" name="Timer Start">
+      <timerEventDefinition>
+        <timeDuration>PT0S</timeDuration>
+      </timerEventDefinition>
+    </startEvent>
+    <scriptTask id="migrationScript" name="Run Migration Script" flowable:autoStoreVariables="true" scriptFormat="groovy">
+      <script><![CDATA[import org.flowable.engine.impl.util.CommandContextUtil
+import org.flowable.engine.repository.ProcessDefinition
+
+def processMigrationService = CommandContextUtil.getProcessEngineConfiguration().processMigrationService
+def repositoryService = CommandContextUtil.getProcessEngineConfiguration().repositoryService
+
+def latestProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P001-helloWorld').latestVersion().singleResult()
+
+if (isNotFirst(latestProcessDefinition)) {
+	def previousProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P001-helloWorld')
+			.processDefinitionVersion(latestProcessDefinition.getVersion() - 1).singleResult()
+
+	processMigrationService.createProcessInstanceMigrationBuilder()
+			.migrateToProcessDefinition(previousProcessDefinition.id)
+			.migrateProcessInstances(latestProcessDefinition.id)
+}
+
+private static boolean isNotFirst(ProcessDefinition latestProcessDefinition) {
+	latestProcessDefinition && !latestProcessDefinition.version
+}
+      ]]></script>
+    </scriptTask>
+    <endEvent id="theEnd" name="End">
+    </endEvent>
+    <sequenceFlow id="flow1" sourceRef="timerStart" targetRef="migrationScript" />
+    <sequenceFlow id="flow2" sourceRef="migrationScript" targetRef="theEnd" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_A001-migration">
+    <bpmndi:BPMNPlane bpmnElement="A001-migration" id="BPMNPlane_A001-migration">
+      <bpmndi:BPMNShape bpmnElement="timerStart" id="BPMNShape_timerStart">
+        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="100.0" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="migrationScript" id="BPMNShape_migrationScript">
+        <omgdc:Bounds height="80.0" width="100.0" x="250.0" y="80.0" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="theEnd" id="BPMNShape_theEnd">
+        <omgdc:Bounds height="28.0" width="28.0" x="450.0" y="100.0" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="130.0" y="115.0" />
+        <omgdi:waypoint x="250.0" y="115.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="350.0" y="115.0" />
+        <omgdi:waypoint x="450.0" y="115.0" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
