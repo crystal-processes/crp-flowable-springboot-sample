@@ -50,6 +50,6 @@ class HelloWorldProcessGroovyTest {
                 .as('The hello world process must pass through all activities')
                 .activities()
                 .extracting('activityId')
-                .containsExactlyInAnyOrderElementsOf(expectedPath + ["theSayHelloUserTask-theEnd", "theEndUpdated"])
+                .containsExactlyInAnyOrderElementsOf(expectedPath + ["theSayHelloUserTask-theEnd", "theEnd"])
     }
 }

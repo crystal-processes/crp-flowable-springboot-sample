@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn"
-			 xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-			 xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
-			 xmlns:design="http://flowable.org/design" typeLanguage="http://www.w3.org/2001/XMLSchema"
-			 expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test"
-			 design:palette="flowable-work-process-palette">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:design="http://flowable.org/design" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test" design:palette="flowable-work-process-palette">
   <process id="P001-helloWorld" name="Hello World!" isExecutable="true" flowable:candidateStarterGroups="flowableUser">
     <documentation>The simplest one task process, ready to grow.</documentation>
     <extensionElements>
@@ -26,13 +21,13 @@
         <design:display_ref_in_diagram><![CDATA[true]]></design:display_ref_in_diagram>
       </extensionElements>
     </startEvent>
-    <endEvent id="theEndUpdated">
+    <endEvent id="theEnd">
       <extensionElements>
         <design:stencilid><![CDATA[EndNoneEvent]]></design:stencilid>
         <design:display_ref_in_diagram><![CDATA[true]]></design:display_ref_in_diagram>
       </extensionElements>
     </endEvent>
-    <sequenceFlow id="theSayHelloUserTask-theEnd" sourceRef="theSayHelloUserTask" targetRef="theEndUpdated">
+    <sequenceFlow id="theSayHelloUserTask-theEnd" sourceRef="theSayHelloUserTask" targetRef="theEnd">
       <extensionElements>
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
@@ -51,7 +46,7 @@
       <bpmndi:BPMNShape bpmnElement="theStart" id="BPMNShape_theStart">
         <omgdc:Bounds height="30.0" width="30.0" x="317.0" y="261.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="theEndUpdated" id="BPMNShape_theEndUpdated">
+      <bpmndi:BPMNShape bpmnElement="theEnd" id="BPMNShape_theEnd">
         <omgdc:Bounds height="28.0" width="28.0" x="547.0" y="262.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="theSayHelloUserTask-theEnd" id="BPMNEdge_theSayHelloUserTask-theEnd" flowable:sourceDockerX="50.0" flowable:sourceDockerY="40.0" flowable:targetDockerX="14.0" flowable:targetDockerY="14.0">
