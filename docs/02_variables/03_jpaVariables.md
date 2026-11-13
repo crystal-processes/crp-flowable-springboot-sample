@@ -1,97 +1,121 @@
-### Use case:
+# JPA Variables
 
-Let's take the [same use case](01_serializable.md) with JPA serialization. The task is to change contract structure in the next step. 
-The [reporting complexity](02_json.md) was already shown. We can use a luxury of sample application and start from the 
-scratch with jpa.
+JPA (Java Persistence API) variables offer a different approach: instead of storing data directly in the process instance, Flowable stores only a reference to a JPA entity. This can simplify some scenarios but introduces new complexities.
 
-![insurance event process](../images/insuranceEventProcess.png)
+## Use Case: Insurance Event Processing with JPA
 
-The initial contract is:
+Starting fresh with JPA, we can design a cleaner architecture. The insurance event process remains the same:
+
+![Insurance event process](../images/insuranceEventProcess.png)
+
+### Initial Entity Structure (v0.2.5)
+
 ```java
 @Entity
-@Table(
-        name = "APP_CONTRACT"
-)
+@Table(name = "APP_CONTRACT")
 @Builder @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class ContractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "APP_CONTRACT_SEQ")
-    @SequenceGenerator(name="APP_CONTRACT_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "APP_CONTRACT_SEQ", allocationSize = 1)
     private Integer id;
 
     private String contractId;
-
     private String account;
-
     private int maxAmount;
 }
 ```
-Liquibase is used for the database schema management. The only necessary think is to allow liquibase in properties and create changelog file. 
+
+Database schema is managed using Liquibase:
+
 ```properties
 spring.liquibase.enabled=true
 spring.liquibase.change-log=config/liquibase/app-change-log.xml
 ```
-Flowable allows us to store Jpa entities as process variables. As you can see in the following groovy test.
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/bd426076176f76b9130a20df462ebbafe6361f83/src/test/groovy/org/crp/flowable/springboot/sample/variables/InsuranceEventJpaTest.groovy#L47-L61
+Flowable stores only a reference to the JPA entity in the process variables. The actual data is stored in the database table, which makes reporting easier.
 
-The flowable stores only a reference variable in the flowable structures. The variable value is stored in the database 
-table, which makes reporting much easier. So how will the database table cope with the same change request as before.
-The `contract.account` has changed from simple `String` value to complex `Account` structure.
+[View JPA test](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/bd426076176f76b9130a20df462ebbafe6361f83/src/test/groovy/org/crp/flowable/springboot/sample/variables/InsuranceEventJpaTest.groovy#L47-L61)
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/java/org/crp/flowable/springboot/sample/entities/jpa/AccountEntity.java#L15-L28
+## The Change Request
 
-The contract is changed accordingly:
+The `contract.account` field needs to change from a simple `String` to a complex `Account` structure:
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/java/org/crp/flowable/springboot/sample/entities/jpa/ContractEntity.java#L21-L23
+[View AccountEntity](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/java/org/crp/flowable/springboot/sample/entities/jpa/AccountEntity.java#L15-L28)
 
-The change in the data structure requires the change in the process model:
+The ContractEntity is updated accordingly:
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/model/acme/P003-jpaProcessInsuranceEvent.bpmn#L16-L17
+[View updated ContractEntity](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/java/org/crp/flowable/springboot/sample/entities/jpa/ContractEntity.java#L21-L23)
 
-The data are migrated in the change log:
+This requires changes to the process model:
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/resources/config/liquibase/app-change-log.xml#L19-L48
+[View process changes](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/model/acme/P003-jpaProcessInsuranceEvent.bpmn#L16-L17)
 
+Database migration is handled via Liquibase changelog:
 
-:warning: **"All" [tests]() work fine. Even our upgrade test from the version 0.2.5 to 0.2.6 works fine:**
+[View database migration](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/522003613490db5fcccaf979099805e29903ae50/src/main/resources/config/liquibase/app-change-log.xml#L19-L48)
+
+## The Problem
+
+All tests pass, including the upgrade test from version 0.2.5 to 0.2.6:
+
 ```java
-    @Test
-    void continueInV1InsuranceEventProcessInstance(){
-            ProcessInstance processInsuranceEvent=runtimeService.createProcessInstanceQuery()
-                .processInstanceName("Insurance event process instance from release 0.2.5")
-                .singleResult();
-            Task assessEventTask=taskService.createTaskQuery().processInstanceId(processInsuranceEvent.getId()).singleResult();
-            taskService.complete(assessEventTask.getId(),Map.of("amount",5));
+@Test
+void continueInV1InsuranceEventProcessInstance() {
+    ProcessInstance processInsuranceEvent = runtimeService.createProcessInstanceQuery()
+            .processInstanceName("Insurance event process instance from release 0.2.5")
+            .singleResult();
+    Task assessEventTask = taskService.createTaskQuery()
+            .processInstanceId(processInsuranceEvent.getId()).singleResult();
+    taskService.complete(assessEventTask.getId(), Map.of("amount", 5));
 
-            assertThat(processInsuranceEvent).doesNotExist()
-                .inHistory().isFinished()
-                .hasVariableWithValue("amount",5);
-    }
+    assertThat(processInsuranceEvent).doesNotExist()
+            .inHistory().isFinished()
+            .hasVariableWithValue("amount", 5);
+}
 ```
-**The problem is**, that money was not sent to the right account. The expectation is to send to account `1234567` amount of `5`.
+
+**However, the money is sent to the wrong account.**
+
+The expectation is to send to account `1234567` the amount of `5`:
+
 ```java
-   Mockito.verify(moneyService, times(1)).sendMoney("1234567", 5);
+Mockito.verify(moneyService, times(1)).sendMoney("1234567", 5);
 ```
-The assertion throws a following exception:
-```shell
-[ERROR] Failures:
-[ERROR]   ContinueInJpaInsuranceEventProcessTest.continueInV1InsuranceEventProcessInstance:49
+
+Instead, the assertion fails with:
+
+```
 Argument(s) are different! Wanted:
-moneyService bean.sendMoney(
-    "1234567",
-    5
-);
--> at org.crp.flowable.springboot.sample.upgrade.ContinueInJpaInsuranceEventProcessTest.continueInV1InsuranceEventProcessInstance(ContinueInJpaInsuranceEventProcessTest.java:49)
-Actual invocations have different arguments at position [0]:
-moneyService bean.sendMoney(
-    "org.crp.flowable.springboot.sample.entities.jpa.AccountEntity@7b9c6e78",
-    5
-);
-```
-The amount is sent to `toString()` output of `AccountEntity@7b9c6e78` instance instead of account number `1234567`.
-([complete test](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/006d9334f4da618a949e9fefb98bc1b10b047c00/release-0.2.6/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInJpaInsuranceEventProcessTest.java#L36)) 
+moneyService bean.sendMoney("1234567", 5);
 
-To solve the problem, the "only" way which we access data outside the model versioning is to use services.    
+Actual invocations have different arguments:
+moneyService bean.sendMoney("org.crp.flowable.springboot.sample.entities.jpa.AccountEntity@7b9c6e78", 5);
+```
+
+**The amount is sent to the `toString()` output of the AccountEntity** (`AccountEntity@7b9c6e78`) instead of the actual account number `1234567`.
+
+[View complete test](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/006d9334f4da618a949e9fefb98bc1b10b047c00/release-0.2.6/src/test/java/org/crp/flowable/springboot/sample/upgrade/ContinueInJpaInsuranceEventProcessTest.java#L36)
+
+## Why This Happens
+
+When Flowable stores a JPA entity as a process variable, it stores only a reference (typically the entity's ID). When the process variable is retrieved, Flowable fetches the current version of the entity from the database.
+
+**The problem:** The process model expression `${contract.account}` returns the AccountEntity object itself, not its ID. When this is passed to the service task, it uses the object's `toString()` method, which produces the useless default representation.
+
+## The Solution
+
+The only reliable way to access data across different model versions is to **use services** to fetch the data. The service layer abstracts away the entity structure and provides a stable interface.
+
+This is exactly what the [Variable Best Practices](04_onlyGoodVariable.md) recommend: always access application data through services, not directly through process variables.
+
+## Key Takeaways
+
+1. **JPA variables store references** – Only the entity ID is stored in the process, the actual data lives in the database
+2. **Database migration is easier** – Changing entity structure is handled by Liquibase or your preferred migration tool
+3. **Reporting is simpler** – Data is already in the database, making reporting straightforward
+4. **But be careful with object references** – Directly using entity objects in expressions can lead to unexpected behavior
+5. **Use services for access** – Always retrieve data through service methods to maintain control and version compatibility
+6. **This still has the versioning problem** – While better than serialization, JPA variables still require careful management across versions

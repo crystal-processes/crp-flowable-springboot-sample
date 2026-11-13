@@ -1,50 +1,67 @@
 <!-- TOC -->
-* [Goal:](#goal)
-* [Step 01 - Basic spring boot and model application](#step-01---basic-spring-boot-and-model-application)
-* [Step 02 - Variables](#step-02---variables)
+* [About](#about)
+* [Getting Started](#getting-started)
+* [Working with Variables](#working-with-variables)
+  * [Version Compatibility Testing](#version-compatibility-testing)
+  * [Java Serialization Variables](#java-serialization-variables)
+  * [JSON Variables](#json-variables)
+  * [JPA Variables](#jpa-variables)
+  * [Variable Best Practices](#variable-best-practices)
 <!-- TOC -->
 
-# Goal:
-The sample application should show how "easy" you can do something. The purpose of this sample application is to show,
-how difficult is to solve problems caused by misleading samples. I do not have a name for this kind of sample. 
-Let's name it fix-sample application.
+# About
 
-Even my 15+ years in BPM and 10+ years with jBPM, Activiti and Flowable, is not enough to find and cover everything. 
-I would like to encourage anybody, who has a problem to [write an issue to the project](https://github.com/crystal-processes/crp-flowable-springboot-sample/issues), or even better to contribute 
+This project demonstrates practical patterns and common pitfalls when building **Spring Boot applications with Flowable BPMN**. 
 
-# Step 01 - Basic spring boot and model application
-The first step is dedicated to an ordinary sample application. 
-## :sunny: [Initial spring boot and flowable application](docs/01_sample/01-initialApp.md)
-No problem till now, just follow the doc. (flowable, spring boot...)
-## :partly_sunny: [Hello World application model](docs/01_sample/02-helloWorld.md)
-How to test model with assertions?
-## :partly_sunny: [Integration with remote designer](docs/01_sample/03-designer.md)
-Automate model downloading in maven build.
+Unlike typical "hello world" samples, this repository focuses on real-world challenges that developers face when working with process variables, data persistence, and model evolution. Each example shows both the problematic approach and the recommended solution.
 
-# Step 02 - Variables
-Flowable allows us to create any variable of almost any type. The projects use variables to store application data. 
-The cost of creating a variable is almost none, the cost of maintenance is tremendous. 
-## :sunny: Support tests between versions
-To demonstrate cost of maintenance, I created a project to support tests between versions [crp-sample-upgrade](https://github.com/crystal-processes/crp-sample-upgrade-test).
-Each module depends on the different `crp-flowable-springboot-sample` version. The test usually works in the following steps:
-- Generate data on the "current" application version and store the status in the DB,
-- Start the new application version and run the tests.
+**Target audience:** Java developers building business applications with Flowable who want to avoid maintenance headaches and architecture issues.
 
-Detailed description: [HowTo](https://github.com/crystal-processes/crp-sample-upgrade-test?tab=readme-ov-file#prerequisites). 
+# Getting Started
 
-## :partly_sunny: Variables with java serialization
-I do not expect somebody uses java serialization for variables. [Why not example](docs/02_variables/01_serializable.md)
+Start with the basics of integrating Flowable with Spring Boot.
 
-## :partly_sunny: Json variables
-Json variables are commonly used. The variable structure and operations on the variable instance are tighten together 
-in the process model. If the operation on structure is outside the process model, the
-[problem is similar](docs/02_variables/02_json.md).
+## [Initial Spring Boot and Flowable Setup](docs/01_sample/01-initialApp.md)
+Standard Spring Boot + Flowable configuration. Follow this guide to create a working foundation.
 
-## :partly_sunny: JPA variables
-[JPA variables](https://www.flowable.com/open-source/docs/bpmn/ch09-JPA) do not store data directly in the process. The process stores only a reference to jpa entity. Where is 
-the [problem](docs/02_variables/03_jpaVariables.md) now?
+## [Hello World Process Model](docs/01_sample/02-helloWorld.md)
+Learn how to test BPMN models with assertions in your unit and integration tests.
 
-## The only good variable
+## [Remote Designer Integration](docs/01_sample/03-designer.md)
+Automate BPMN model downloads from a remote Flowable designer directly into your Maven build.
 
-Flowable allows to create variables easily. The problems described above are only small sample. The [rules to follow](docs/02_variables/04_onlyGoodVariable.md).
+# Working with Variables
 
+Variables are the primary mechanism for passing data through process instances. However, improper use leads to significant maintenance costs, versioning problems, and technical debt.
+
+## Version Compatibility Testing
+
+To validate version compatibility and demonstrate upgrade scenarios, this project has a companion test project: **[crp-sample-upgrade-test](https://github.com/crystal-processes/crp-sample-upgrade-test)**.
+
+Each module in the upgrade test project depends on a different version of `crp-flowable-springboot-sample`. Tests follow this pattern:
+1. Generate data on the "current" application version and store it in the database
+2. Start the new application version and run tests against the existing data
+
+This approach validates that process instances created with one version can continue running correctly after an upgrade.
+
+[See detailed setup instructions](https://github.com/crystal-processes/crp-sample-upgrade-test?tab=readme-ov-file#prerequisites)
+
+## [Java Serialization Variables](docs/02_variables/01_serializable.md)
+Why Java serialization for process variables causes problems and should be avoided.
+
+## [JSON Variables](docs/02_variables/02_json.md)
+Common pitfalls when using JSON variables and how to structure them properly.
+
+## [JPA Variables](docs/02_variables/03_jpaVariables.md)
+How JPA variables work and the hidden complexity of storing entity references in process instances.
+
+## [Variable Best Practices](docs/02_variables/04_onlyGoodVariable.md)
+**Recommended reading.** 
+
+Four practical rules for using variables correctly:
+1. **Avoid variables when possible** – Think carefully before creating any process variable
+2. **Use transient variables** – When you need a variable, make it transient
+3. **Store application data outside the process** – Use data objects or JPA entities, not process variables
+4. **Access data through services** – Always use service layer to fetch application data, maintaining proper versioning control
+
+These patterns prevent common issues with data consistency, versioning, and maintenance across Flowable upgrades.

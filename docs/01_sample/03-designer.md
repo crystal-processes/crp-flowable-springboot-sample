@@ -1,62 +1,98 @@
-## Why to integrate model into build and repository.
-- Manual model downloading is error-prone.
-- The automation can support model unzipping/zipping to track changes in gitlab.
-- Branching & merging.
+# Remote Designer Integration
 
-## How
-- Create [flowable open-source account](https://www.flowable.com/account/open-source).
-- Login to [cloud designer](https://cloud.flowable.com/design/)
-- Create or import application. Use e.g. [acme application model](../../src/main/resources/apps) from the project for import.
-- Generate token
+Automating BPMN model downloads from a remote Flowable designer into your Maven build prevents errors and enables proper version control.
+
+## Why Automate Model Integration
+
+- **Eliminates manual errors** – Manual downloads are prone to mistakes
+- **Enables Git tracking** – Models can be versioned alongside code
+- **Supports branching & merging** – Models can follow the same workflow as your code
+
+## Setup Instructions
+
+### 1. Create a Flowable Account
+
+- [Create a Flowable open-source account](https://www.flowable.com/account/open-source)
+- [Login to Cloud Designer](https://cloud.flowable.com/design/)
+
+### 2. Create or Import Your Application
+
+Use the existing [acme application model](../../src/main/resources/apps) as a starting point, or create your own.
+
+### 3. Generate an Access Token
 
 ![Generate access token](../images/generateToken.png)
-- Set `FLOWABLE_TOKEN` environment variable in operating system. (There are other possibilities for [crp-flowable-shell](https://github.com/crystal-processes/crp-flowable-ex/tree/main/crp-flowable-shell) too.)
-- Set application name in the `pom.xml`
-  https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/c66819a1c703d9c59c27aa12ee95d47c9c636b6a/pom.xml#L20-L24
-`downloadModel` maven profile and [crp-flowable-shell](https://github.com/crystal-processes/crp-flowable-ex/tree/main/crp-flowable-shell) do the rest.
-```shell
-$ ./mvnw generate-resources -PdownloadModel
+
+### 4. Configure Your Environment
+
+Set the `FLOWABLE_TOKEN` environment variable in your operating system:
+
+```bash
+# On Linux/macOS
+export FLOWABLE_TOKEN=your-generated-token
+
+# On Windows
+set FLOWABLE_TOKEN=your-generated-token
 ```
-| maven phase        | [crp-flowable-shell](https://github.com/crystal-processes/crp-flowable-ex/tree/main/crp-flowable-shell) command | Description                                                                                     |
-|--------------------|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| generate-sources   | designer-export ${application.name} --output-file-name target/temp_${application.name}.zip                      | Export model from designer and download model to temporary file. `downloadModel` profile.       |
-| process-sources    | unzip target/temp_${application.name}.zip src/main/model/${application.name}                                    | Unzip temporary model to model directory to allow local changes. `downloadModel` profile.       |                                                      
-| generate-resources | zip src/main/model/${application.name} src/main/resources/apps/${application.name}-bar.zip                      | Zip model files into deployable bar file again. Part of default build to include local changes. |
-- Check changes in your favorite IDE
+
+For advanced configuration options with [crp-flowable-shell](https://github.com/crystal-processes/crp-flowable-ex/tree/main/crp-flowable-shell), refer to its documentation.
+
+### 5. Configure pom.xml
+
+Set your application name in the `pom.xml`:
+
+[View pom.xml configuration](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/c66819a1c703d9c59c27aa12ee95d47c9c636b6a/pom.xml#L20-L24)
+
+## Automating the Build
+
+The `downloadModel` Maven profile uses [crp-flowable-shell](https://github.com/crystal-processes/crp-flowable-ex/tree/main/crp-flowable-shell) to automate model downloads:
+
+```shell
+./mvnw generate-resources -PdownloadModel
+```
+
+### Maven Phase Breakdown
+
+| Maven Phase | Shell Command | Description |
+|--------------|---------------|-------------|
+| `generate-sources` | `designer-export ${application.name} --output-file-name target/temp_${application.name}.zip` | Exports model from designer to a temporary file |
+| `process-sources` | `unzip target/temp_${application.name}.zip src/main/model/${application.name}` | Unzips model to allow local modifications |
+| `generate-resources` | `zip src/main/model/${application.name} src/main/resources/apps/${application.name}-bar.zip` | Re-packages model for deployment |
+
+## Reviewing Changes
+
+After running the build, review model changes in your IDE:
+
 ![Model diff](../images/modelDiff.png)
 
-`crp-flowable-shell` provides useful commands also for `6.x` flowable modeler 
+## Additional crp-flowable-shell Commands
+
+The tool provides useful commands for both Flowable 6.x and 7.x:
+
 ```shell
-$ java -jar ~/.m2/repository/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar
-crp-flowable-shell:>help
-help
-AVAILABLE COMMANDS
-
-Deployment
-       list-deployments, lsd: list deployments
-       rmd, delete-deployments: Delete all deployments with given name, tenantId from runtime. WARNING - use only for testing purposes
-       deploy: Deploy given application
-
-Designer
-       dx, designer-export: Export application model from modeler to file.
-
-Model
-       import: Import file to modeler.
-       ls, list: List models.
-       rm, delete-model: Delete model from modeler.
-       export-bar: Export deployable model from modeler to file.
-       export: Export model from modeler to file.
-
-Raw Rest
-       ex, execute: execute url.
-       exl, execute-logged: execute url with logged in client.
-
-Template Processor
-       gt, generate-test: Generate test from flowable history.
-
-Utils
-       zip: Zip directory to file.
-       configure: Configure flowable rest endpoint.
-       unzip: Unzip file to directory.
-crp-flowable-shell:>
+# List all available commands
+java -jar ~/.m2/repository/io/github/crystal-processes/crp-flowable-shell/0.0.5/crp-flowable-shell-0.0.5.jar
 ```
+
+### Deployment Commands
+- `list-deployments, lsd` – List deployments
+- `delete-deployments, rmd` – Delete deployments (WARNING: for testing only)
+- `deploy` – Deploy an application
+
+### Designer Commands
+- `designer-export, dx` – Export application model from modeler
+
+### Model Commands
+- `import` – Import file to modeler
+- `list, ls` – List models
+- `delete-model, rm` – Delete model from modeler
+- `export-bar` – Export deployable model from modeler
+- `export` – Export model from modeler
+
+### Other Commands
+- `execute, ex` – Execute a URL
+- `execute-logged, exl` – Execute URL with logged-in client
+- `generate-test, gt` – Generate test from Flowable history
+- `configure` – Configure Flowable REST endpoint
+- `zip` – Zip directory to file
+- `unzip` – Unzip file to directory
