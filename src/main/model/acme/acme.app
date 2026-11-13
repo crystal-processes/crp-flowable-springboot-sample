@@ -17,6 +17,14 @@
           "type": "bpmn"
         },
         {
+          "key": "P030-processInsuranceEvent",
+          "type": "bpmn"
+        },
+        {
+          "key": "P004-jpaServiceProcessInsuranceEvent",
+          "type": "bpmn"
+        },
+        {
           "key": "P003-jpaProcessInsuranceEvent",
           "type": "bpmn"
         },

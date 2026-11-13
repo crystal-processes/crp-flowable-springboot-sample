@@ -48,7 +48,7 @@ public class RestApiApplicationTest {
                 .extracting(ProcessDefinitionResponse::getKey)
                 .containsExactlyInAnyOrder( "A001-migration", "P001-helloWorld", "P002-processInsuranceEvent",
                         "P003-jpaProcessInsuranceEvent", "P004-jpaServicesProcessInsuranceEvent",
-                        "P005-processInsuranceEvent");
+                        "P030-processInsuranceEvent");
     }
 
     @Test
