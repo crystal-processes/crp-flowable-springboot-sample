@@ -7,32 +7,66 @@
         <timeDuration>PT0S</timeDuration>
       </timerEventDefinition>
     </startEvent>
-    <scriptTask id="migrationScript" name="Run Migration Script" flowable:autoStoreVariables="true" scriptFormat="groovy">
-      <script><![CDATA[import org.flowable.engine.impl.util.CommandContextUtil
-import org.flowable.engine.repository.ProcessDefinition
-
-def processMigrationService = CommandContextUtil.getProcessEngineConfiguration().processMigrationService
+    <scriptTask id="migrationScript" name="Run Migration Script 0.3.0 -> 0.3.1" flowable:autoStoreVariables="true" scriptFormat="groovy">
+      <script><![CDATA[
+      if ('0.3.0' == acmeModelVersion) {
+        def processMigrationService = CommandContextUtil.getProcessEngineConfiguration().processMigrationService
 def repositoryService = CommandContextUtil.getProcessEngineConfiguration().repositoryService
 
-def latestProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P001-helloWorld').latestVersion().singleResult()
+def latestProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P030-processInsuranceEvent').latestVersion().singleResult()
 
 if (isNotFirst(latestProcessDefinition)) {
-	def previousProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P001-helloWorld')
+	def previousProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P030-processInsuranceEvent')
 			.processDefinitionVersion(latestProcessDefinition.getVersion() - 1).singleResult()
 
 	processMigrationService.createProcessInstanceMigrationBuilder()
 			.migrateToProcessDefinition(previousProcessDefinition.id)
 			.migrateProcessInstances(latestProcessDefinition.id)
 }
-
-private static boolean isNotFirst(ProcessDefinition latestProcessDefinition) {
-	latestProcessDefinition && !latestProcessDefinition.version
-}
+      }
       ]]></script>
     </scriptTask>
     <endEvent id="theEnd" name="End">
-    </endEvent>
-    <sequenceFlow id="flow1" sourceRef="timerStart" targetRef="migrationScript" />
+      <extensionElements>
+      <flowable:executionListener event="start" class="org.flowable.engine.impl.bpmn.listener.ScriptExecutionListener">
+        <flowable:field name="script">
+          <flowable:string>
+            import org.flowable.engine.impl.util.CommandContextUtil
+            def propertyEntityManager  = CommandContextUtil.getProcessEngineConfiguration().getPropertyEntityManager()
+            def acmeModelVersion = execution.getVariable('acmeModelVersion')
+
+            propertyEntityManager.directInsertProperty('acme.model.version', acmeModelVersion)
+
+            CommandContextUtil.processEngineConfiguration.getRuntimeService().removeVariable(execution.getId. 'acmeModelVersion')
+          </flowable:string>
+        </flowable:field>
+        <flowable:field name="language" stringValue="groovy"/>
+      </flowable:executionListener>
+    </extensionElements>
+
+  </endEvent>
+    <sequenceFlow id="flow1" sourceRef="timerStart" targetRef="migrationScript" >
+      <extensionElements>
+        <flowable:executionListener event="take" class="org.flowable.engine.impl.bpmn.listener.ScriptExecutionListener">
+          <flowable:field name="script">
+            <flowable:string>
+              import org.flowable.engine.impl.util.CommandContextUtil
+
+              def propertyEntityManager  = CommandContextUtil.getProcessEngineConfiguration().getPropertyEntityManager()
+
+              def acmeModelVersion = propertyEntityManager.findById('acme.model.version')
+              if (!acmeModelVersion) {
+              propertyEntityManager.directInsertProperty('acme.model.version', '0.3.1')
+              execution.setVariable('acmeModelVersion', '0.3.1');
+              } else {
+              execution.setVariable('acmeModelVersion', acmeModelVersion.value)
+              }
+            </flowable:string>
+          </flowable:field>
+          <flowable:field name="language" stringValue="groovy"/>
+        </flowable:executionListener>
+      </extensionElements>
+    </sequenceFlow>
     <sequenceFlow id="flow2" sourceRef="migrationScript" targetRef="theEnd" />
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_A001-migration">
