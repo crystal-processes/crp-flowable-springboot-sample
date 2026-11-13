@@ -57,7 +57,7 @@ class InsuranceEventTest {
     void 'end to end with jpa objects'() {
         ProcessInstance insuranceEventProcess = runtimeService.createProcessInstanceBuilder()
                 .processDefinitionKey("P030-processInsuranceEvent")
-                .variables(['contractId':'testContractId',
+                .transientVariables(['contractId':'testContractId',
                     'requestedAmount': 10, 
                     'eventDescription': 'I broke my leg.'])
                 .start()
@@ -65,11 +65,11 @@ class InsuranceEventTest {
         assertThat(insuranceEventProcess).isRunning()
                 .userTasks().extracting('name').containsExactly('Assess event')
         assertThat(insuranceEventProcess)
-                .hasVariable('contract')
+                .hasVariable('insuranceEventId')
                 .variables()
-                .filteredOn {'contract' == it.getName() }
+                .filteredOn {'insuranceEventId' == it.getName() }
                 .extracting('typeName')
-                .containsOnly('jpa-entity')
+                .containsOnly('integer')
 
         Task assessmentTask = taskService.createTaskQuery().processInstanceId(insuranceEventProcess.getId()).singleResult()
         taskService.complete(assessmentTask.getId(), ['amount': 5])

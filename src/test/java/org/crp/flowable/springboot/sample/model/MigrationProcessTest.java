@@ -1,19 +1,57 @@
 package org.crp.flowable.springboot.sample.model;
 
 import org.crp.flowable.springboot.sample.AcmeApplicationTest;
+import org.crp.flowable.springboot.sample.entities.jpa.AccountEntity;
+import org.crp.flowable.springboot.sample.entities.jpa.AccountRepository;
+import org.crp.flowable.springboot.sample.entities.jpa.ContractEntity;
+import org.crp.flowable.springboot.sample.entities.jpa.ContractRepository;
+import org.crp.flowable.springboot.sample.entities.jpa.InsuranceEventRepository;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.test.JobTestHelper;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.crp.flowable.assertions.CrpFlowableAssertions.assertThat;
 
 
 @AcmeApplicationTest
 public class MigrationProcessTest {
+
+	@Autowired
+	private AccountRepository accountRepository;
+	@Autowired
+	private ContractRepository contractRepository;
+	@Autowired
+	private InsuranceEventRepository insuranceEventRepository;
+
+	@BeforeEach
+	void initializeEntities() {
+		var accountEntity = accountRepository.save(AccountEntity.builder()
+				.number("1234567")
+				.owner("jlong")
+				.build()
+		);
+		contractRepository.save(
+				ContractEntity.builder()
+						.maxAmount(10_000)
+						.contractId("testContractId")
+						.account(accountEntity).build()
+		);
+	}
+
+	@AfterEach
+	void removeEntities() {
+		insuranceEventRepository.deleteAll();
+		contractRepository.deleteAll();
+		accountRepository.deleteAll();
+	}
 
     @Test
     void processDefinitionIsDeployed(RepositoryService repositoryService) {
@@ -37,17 +75,19 @@ public class MigrationProcessTest {
 	}
 
 	@Test
-    void processExecutesOnApplicationStart(ProcessEngineConfiguration configuration, HistoryService historyService) {
+    void migrationExecutesOnApplicationStart(ProcessEngineConfiguration configuration, HistoryService historyService) {
         JobTestHelper.waitForJobExecutorOnCondition(
                 configuration, 10_000, 200,
                 () -> historyService.createHistoricProcessInstanceQuery().processDefinitionKey("A001-migration").count() == 1);
 
-        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                .processDefinitionKey("A001-migration").singleResult();
+		HistoricProcessInstance latestMigrationProcess = historyService.createHistoricProcessInstanceQuery()
+				.processDefinitionKey("A001-migration").singleResult();
 
-		assertThat(historicProcessInstance)
+		assertThat(latestMigrationProcess)
 				.as("Migration process has to be started automatically.")
 				.isFinished();
+
+		assertThat(configuration.getManagementService().getProperties()).containsEntry("acme.model.version", "0.3.1");
     }
 
 }

@@ -231,36 +231,37 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.1.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.8.0</version>
 				<executions>
 					<execution>
 						<id>ZipToDeployableApp</id>
 						<phase>generate-resources</phase>
 						<goals>
-							<goal>exec</goal>
+							<goal>single</goal>
 						</goals>
 						<configuration>
-							<executable>java</executable>
-							<arguments>
-								<argument>-jar</argument>
-								<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/${crp-flowable-ex.version}/crp-flowable-shell-${crp-flowable-ex.version}.jar</argument>
-								<argument>zip</argument>
-								<argument>src/main/model/${application.name}</argument>
-								<argument>src/main/resources/apps/${application.name}-bar.zip</argument>
-							</arguments>
+							<inlineDescriptors>
+								<inlineDescriptor>
+									<id>bar</id>
+									<formats>
+										<format>zip</format>
+									</formats>
+									<includeBaseDirectory>false</includeBaseDirectory>
+									<fileSets>
+										<fileSet>
+											<directory>src/main/model/${application.name}</directory>
+											<outputDirectory>/</outputDirectory>
+										</fileSet>
+									</fileSets>
+								</inlineDescriptor>
+							</inlineDescriptors>
+							<outputDirectory>src/main/resources/apps</outputDirectory>
+							<finalName>acme</finalName>
 						</configuration>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>io.github.crystal-processes</groupId>
-						<artifactId>crp-flowable-shell</artifactId>
-						<version>${crp-flowable-ex.version}</version>
-						<type>jar</type>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
