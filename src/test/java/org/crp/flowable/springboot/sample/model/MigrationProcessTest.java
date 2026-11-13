@@ -28,15 +28,6 @@ public class MigrationProcessTest {
     }
 
 	@Test
-	void processToMigrateHasVersion(ProcessEngineConfiguration configuration, RepositoryService repositoryService) {
-		ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-				.processDefinitionKey("P001-helloWorld")
-				.singleResult();
-
-		assertThat(processDefinition).isNotNull();
-	}
-
-	@Test
     void processExecutesOnApplicationStart(ProcessEngineConfiguration configuration, HistoryService historyService) {
         JobTestHelper.waitForJobExecutorOnCondition(
                 configuration, 10_000, 200,
@@ -48,6 +39,9 @@ public class MigrationProcessTest {
 		assertThat(historicProcessInstance)
 				.as("Migration process has to be started automatically.")
 				.isFinished();
+
+		assertThat(configuration.getManagementService().getProperties())
+				.containsEntry("acme.model.version", "0.3.0");
     }
 
 }
