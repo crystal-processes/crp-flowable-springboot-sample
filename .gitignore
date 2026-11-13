@@ -34,3 +34,4 @@ build/
 
 *.log
 /src/test/groovy/bpmn/**
+/src/main/resources/acme-bar.zip
