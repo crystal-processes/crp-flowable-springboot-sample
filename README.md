@@ -7,6 +7,7 @@
   * [JSON Variables](#json-variables)
   * [JPA Variables](#jpa-variables)
   * [Variable Best Practices](#variable-best-practices)
+* [Process Instance Migration](#process-instance-migration)
 <!-- TOC -->
 
 # About
@@ -65,3 +66,10 @@ Four practical rules for using variables correctly:
 4. **Access data through services** – Always use service layer to fetch application data, maintaining proper versioning control
 
 These patterns prevent common issues with data consistency, versioning, and maintenance across Flowable upgrades.
+
+# Process Instance Migration
+
+Version 0.3.1 introduces **automated process instance migration** from JPA-based to service-based variable storage.
+
+## [JPA to Services Migration](docs/03_migration/01-jpa-to-services-migration.md)
+Automatically migrate existing process instances between architectural versions. The migration process `A001-migration.bpmn` runs automatically on application startup and transforms process variables from JPA entity references to service-based references, ensuring seamless upgrades between versions 0.3.0 and 0.3.1. Validation tests are available in the [crp-sample-upgrade-test](https://github.com/crystal-processes/crp-sample-upgrade-test) project (release-0.3.0 and release-0.3.1) via the `run_test-phase3.sh` script.
