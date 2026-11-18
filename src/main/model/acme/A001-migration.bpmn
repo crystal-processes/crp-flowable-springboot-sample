@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://flowable.org/test">
+  <process id="A001-migration" name="Migration Process" isExecutable="true">
+	  <documentation>Process that starts with a timer event and executes a script task for migration purposes.</documentation>
+	  <startEvent id="timerStart" name="Timer Start">
+      <timerEventDefinition>
+        <timeDuration>PT0S</timeDuration>
+      </timerEventDefinition>
+    </startEvent>
+    <scriptTask id="getModelVersion" name="Get initial acme model version" flowable:autoStoreVariables="true" scriptFormat="groovy">
+      <script><![CDATA[              import org.flowable.engine.impl.util.CommandContextUtil
+
+              def propertyEntityManager  = CommandContextUtil.getProcessEngineConfiguration().getPropertyEntityManager()
+
+              def acmeModelVersion = propertyEntityManager.findById('acme.model.version')
+              if (!acmeModelVersion) {
+              execution.setVariable('acmeModelVersion', 'initial');
+              } else {
+              execution.setVariable('acmeModelVersion', acmeModelVersion.value)
+              }
+
+      ]]></script>
+    </scriptTask>
+
+	  <scriptTask id="migration030_031" name="Run Migration Script 0.3.0 -> 0.3.1" flowable:autoStoreVariables="true" scriptFormat="groovy">
+		  <script><![CDATA[import org.flowable.engine.impl.util.CommandContextUtil
+
+      if ('0.3.0' == execution.getVariable('acmeModelVersion')) {
+        def processMigrationService = CommandContextUtil.getProcessEngineConfiguration().processMigrationService
+def repositoryService = CommandContextUtil.getProcessEngineConfiguration().repositoryService
+
+def latestProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P030-processInsuranceEvent').latestVersion().singleResult()
+def previousProcessDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey('P030-processInsuranceEvent')
+			.processDefinitionVersion(latestProcessDefinition.getVersion() - 1).singleResult()
+
+
+	processMigrationService.createProcessInstanceMigrationBuilder()
+			.migrateToProcessDefinition(latestProcessDefinition.id)
+				.postUpgradeScript(new org.flowable.engine.migration.Script('groovy',
+			'''import org.flowable.engine.impl.util.CommandContextUtil
+				println 'Migrating process instances to version 0.3.1'
+
+				def contractId = execution.getVariable('contractId')
+				def eventDescription = execution.getVariable('eventDescription')
+				def requestedAmount = execution.getVariable('amount')
+                def insuranceEventId = insuranceEventService.createInstance(contractId, eventDescription, requestedAmount)
+                execution.setVariable('insuranceEventId', insuranceEventId)
+
+                CommandContextUtil.getProcessEngineConfiguration().getRuntimeService().removeVariable(execution.getId(), 'contractId')
+                CommandContextUtil.getProcessEngineConfiguration().getRuntimeService().removeVariable(execution.getId(), 'eventDescription')
+                CommandContextUtil.getProcessEngineConfiguration().getRuntimeService().removeVariable(execution.getId(), 'amount')
+'''
+	))
+
+			.migrateProcessInstances(previousProcessDefinition.id)
+      }
+      ]]></script>
+	  </scriptTask>
+
+
+	  <scriptTask id="setModelVersion" name="Remove model version variable" flowable:autoStoreVariables="false" scriptFormat="groovy">
+		  <script><![CDATA[              import org.flowable.engine.impl.util.CommandContextUtil
+
+			  def acmeModelVersion = execution.getVariable('acmeModelVersion')
+			  if ('initial' == acmeModelVersion) {
+				  CommandContextUtil.getProcessEngineConfiguration().getPropertyEntityManager().directInsertProperty('acme.model.version', '0.3.1')
+			  } else {
+				  def modelVersionProperty = CommandContextUtil.getProcessEngineConfiguration().getPropertyEntityManager().findById('acme.model.version')
+modelVersionProperty.setValue('0.3.1')
+			  }
+			  CommandContextUtil.getProcessEngineConfiguration().getRuntimeService().removeVariable(execution.getId(), 'acmeModelVersion')
+]]></script>
+	  </scriptTask>
+    <endEvent id="theEnd" name="End" />
+    <sequenceFlow id="flow1" sourceRef="timerStart" targetRef="getModelVersion" />
+    <sequenceFlow id="flow2" sourceRef="getModelVersion" targetRef="migration030_031" />
+    <sequenceFlow id="flow3" sourceRef="migration030_031" targetRef="setModelVersion" />
+    <sequenceFlow id="flow4" sourceRef="setModelVersion" targetRef="theEnd" />
+  </process>
+</definitions>

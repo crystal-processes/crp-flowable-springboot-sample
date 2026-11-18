@@ -1,9 +1,8 @@
 package org.crp.flowable.springboot.sample.services;
 
-
+import tools.jackson.databind.JsonNode;
 import org.crp.flowable.springboot.sample.entities.jpa.ContractEntity;
 import org.crp.flowable.springboot.sample.utils.RuntimeUsage;
-import tools.jackson.databind.JsonNode;
 
 /**
  * Demo service to provide contracts for the insurance event process.

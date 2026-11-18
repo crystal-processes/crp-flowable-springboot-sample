@@ -33,3 +33,5 @@ build/
 .vscode/
 
 *.log
+/src/test/groovy/bpmn/**
+/src/main/resources/apps/acme-bar.zip

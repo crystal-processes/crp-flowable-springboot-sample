@@ -1,26 +1,40 @@
-## What was done
-Follow the first steps in [Spring Boot flowable opensource documentation](https://www.flowable.com/open-source/docs/bpmn/ch05a-Spring-Boot). There are several videos related to the same topic. Instead of `flowable-spring-boot-starter`,
-`flowable-spring-boot-starter-rest` is used.
+# Initial Spring Boot and Flowable Setup
 
-## How to build
+This guide walks you through creating a basic Spring Boot application with Flowable BPMN support.
+
+## What Was Done
+
+Followed the [Flowable Spring Boot documentation](https://www.flowable.com/open-source/docs/bpmn/ch05a-Spring-Boot) to set up the project.
+
+**Note:** This project uses `flowable-spring-boot-starter-rest` instead of the basic `flowable-spring-boot-starter` to include REST API support.
+
+## Building the Project
 
 ```shell
 ./mvnw clean install
 ```
 
-## How to run
-Pre-requisites:
-- running docker desktop e.g.[docker-desktop](https://www.docker.com/products/docker-desktop/)
+## Running the Application
+
+### Prerequisites
+- Docker Desktop or equivalent (e.g., [Docker Desktop](https://www.docker.com/products/docker-desktop/))
+
+### Start the Database
 ```shell
-# start postgresql server 
+# Start PostgreSQL server
 docker-compose -f docker-compose/postgres-docker-compose.yml up
-# start acme application
-java -jar target/crp-flowable-springboot-sample-0.1.0-exec.jar
 ```
 
-## How to check
+### Start the Application
+```shell
+java -jar target/crp-flowable-springboot-sample-*.jar
+```
 
-| link                                                                                                            | expected output                                                                                                                    |
-|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| [/idm-api/groups](http://localhost:8080/idm-api/groups)                                                         | `{"data":[{"id":"user","url":null,"name":"users","type":"security-role"}],"total":1,"start":0,"sort":"id","order":"asc","size":1}` |
-| [/process-api/repository/process-definitions](http://localhost:8080/process-api/repository/process-definitions) | `{"data":[],"total":0,"start":0,"sort":"name","order":"asc","size":0}`                                                             |
+## Verifying the Setup
+
+Once the application is running, verify it works correctly by checking these endpoints:
+
+| Endpoint | Expected Output | Description |
+|----------|-----------------|-------------|
+| [`/idm-api/groups`](http://localhost:8080/idm-api/groups) | Security role data | Verifies identity management is working |
+| [`/process-api/repository/process-definitions`](http://localhost:8080/process-api/repository/process-definitions) | Empty process definitions array | Verifies process engine is initialized |

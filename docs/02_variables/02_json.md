@@ -1,73 +1,97 @@
-### Use case:
+# JSON Variables
 
-Let's take the [same use case](01_serializable.md) with JSON serialization. The `contract.account` has changed from simple `String` value to complex `Account`
-structure.
+JSON serialization is a common choice for Flowable process variables. While it solves some problems with Java serialization, it introduces its own challenges, especially when the JSON structure evolves.
 
-![insurance event process](../images/insuranceEventProcess.png)
+## Use Case: Insurance Event Processing
 
-The difference is only in the `contract` variable instantiated in `GetContract` service task.
-Initial contract structure in `v0.2.2`:
+Using the same [insurance event use case](01_serializable.md), let's see how JSON serialization behaves when the `contract.account` field changes from a simple `String` to a complex `Account` structure.
+
+![Insurance event process](../images/insuranceEventProcess.png)
+
+### Version 0.2.2: Initial Structure
+
+The initial contract structure uses a simple string for the account:
+
 ```json
 {
-  "account" : "account-id",
+  "account": "account-id",
   "maxAmount": 10000
 }
 ```
-`Send money` service task [P002-processInsuranceEvent v0.2.2](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/23b3ae07264a981fcb19b95303232c753906cd06/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16):
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/23b3ae07264a981fcb19b95303232c753906cd06/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16-L16
+The `Send money` service task in [P002-processInsuranceEvent v0.2.2](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/23b3ae07264a981fcb19b95303232c753906cd06/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16) works with this structure.
 
-Is changed to `v0.2.3`:
+### Version 0.2.3: Changed Structure
+
+The contract structure evolves to use a nested account object:
+
 ```json
 {
-  "account" : { "owner" : "jlong", "id":"account-id" },
+  "account": {
+    "owner": "jlong",
+    "id": "account-id"
+  },
   "maxAmount": 10000
 }
 ```
-`Send money` service task uses following expression [P002-processInsuranceEvent v0.2.3](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/945b354684623ff23e39d1803ab96dcff0a226f8/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16)::
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/945b354684623ff23e39d1803ab96dcff0a226f8/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16-L16
+The `Send money` service task in [P002-processInsuranceEvent v0.2.3](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/945b354684623ff23e39d1803ab96dcff0a226f8/src/main/model/acme/P002-processInsuranceEvent.bpmn#L16) is updated to work with this new structure.
 
-The tests works fine in:
-[versioning upgrade project](https://github.com/crystal-processes/crp-sample-upgrade-test)
+## The Testing Challenge
+
+The upgrade test passes when testing version-to-version compatibility:
+
 ```shell
- echo '--------------------------------------------------------------'
- echo '--- Testing upgrade from release-0.2.2 -> release-0.2.3    ---'
- echo '--- json serialization                                     ---'
-# generate v 0.2.2 data
-  ./mvnw --projects release-0.2.2 clean test -Dspring.profiles.active=generateData
- # test process execution on the version 0.2.0
-  ./mvnw --projects release-0.2.3 clean test
+# Generate v0.2.2 data
+./mvnw --projects release-0.2.2 clean test -Dspring.profiles.active=generateData
+
+# Test process execution on version 0.2.3
+./mvnw --projects release-0.2.3 clean test
 ```
 
-and for the latest application version too:
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/2fe6220b5d53497d5fb7ab43414da780bb532e98/src/test/java/org/crp/flowable/springboot/sample/insurance/InsuranceEventTest.java#L30-L48
+[View upgrade test project](https://github.com/crystal-processes/crp-sample-upgrade-test)
 
-### :warning: Problem
-If the operation on structure is outside the process model, we are in the similar trouble as in 
-[java serialization](01_serializable.md#warning-problem).
+Current version tests also work:
 
-**Task:**
-Create a report with
+[View current version test](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/2fe6220b5d53497d5fb7ab43414da780bb532e98/src/test/java/org/crp/flowable/springboot/sample/insurance/InsuranceEventTest.java#L30-L48)
 
-| account | Amount sent |
+## The Real Problem
+
+**Issue:** When the operation on the JSON structure happens **outside the process model**, you face the same problems as with Java serialization.
+
+### Example: Creating a Report
+
+**Task:** Create a report with the following format:
+
+| Account | Amount Sent |
 |---------|-------------|
 
-where account is `account id`.
+Where "Account" should display the `account id`.
 
-**Solution proposal:**
-A `reportService` fetches all process instances from the history with variables:
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/876dff9ca130480c6c046dd24a909832edc467c3/src/main/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportService.java#L77-L78
+**Solution:** A `reportService` fetches all process instances from history with their variables:
 
-and map each process instance to the json object. The most current version needs only `contract.account.id`. 
-The code to support all contract formats is:
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/876dff9ca130480c6c046dd24a909832edc467c3/src/main/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportService.java#L42-L68
+[View report service](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/876dff9ca130480c6c046dd24a909832edc467c3/src/main/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportService.java#L77-L78)
 
-We will need ordering and grouping and the problem grows. You can find more details about:
+And maps each process instance to a JSON object. The current version only needs `contract.account.id`, but the code must support all historical contract formats:
+
+[View report mapping logic](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/876dff9ca130480c6c046dd24a909832edc467c3/src/main/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportService.java#L42-L68)
+
+**The complexity grows** when you need to add ordering, grouping, and other report features. This becomes a maintenance burden.
+
+### Test References
+
 - [How to reproduce the issue](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/aef07259a67166f5d0e2c052bd11217871eebaad/run_test.sh#L38-L45)
 - [How to test serialization for all supported formats](https://github.com/crystal-processes/crp-sample-upgrade-test/blob/aef07259a67166f5d0e2c052bd11217871eebaad/release-0.2.4/src/test/java/org/crp/flowable/springboot/sample/upgrade/ReportTest.java#L21-L25)
-- How to test current version
+- [Current version test](https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/26460e9bfa316b5d90b1f1ee9992cb6668ecddad/src/test/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportServiceTest.java#L39-L59)
 
-https://github.com/crystal-processes/crp-flowable-springboot-sample/blob/26460e9bfa316b5d90b1f1ee9992cb6668ecddad/src/test/java/org/crp/flowable/springboot/sample/services/impl/DefaultReportServiceTest.java#L39-L59
+## Key Takeaways
 
+1. **JSON is better than Java serialization** – But it still has versioning challenges
+2. **Process-internal changes are manageable** – If the structure change is handled within the process model, JSON works well
+3. **External operations are problematic** – When code outside the process needs to access JSON variables, version compatibility becomes a major issue
+4. **Reporting adds complexity** – Generating reports from historical process data requires handling all historical JSON structures
+5. **Consider alternatives** – For complex applications, consider using JPA variables or external data storage instead
 
+## Recommendation
+
+Use JSON variables for simple, self-contained process data. For complex business data that needs to be accessed externally or reported on, consider the approaches described in [Variable Best Practices](04_onlyGoodVariable.md).

@@ -1,14 +1,17 @@
 package org.crp.flowable.springboot.sample;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.flowable.common.rest.api.DataResponse;
 import org.flowable.dmn.rest.service.api.repository.DmnDeploymentResponse;
 import org.flowable.rest.service.api.identity.GroupResponse;
 import org.flowable.rest.service.api.repository.ProcessDefinitionResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.json.BasicJsonTester;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.webclient.test.autoconfigure.AutoConfigureWebClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -16,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @AcmeApplicationTest
-@AutoConfigureWebTestClient
+@AutoConfigureWebClient
+@AutoConfigureTestRestTemplate
 public class RestApiApplicationTest {
 
     @Autowired
@@ -24,20 +28,22 @@ public class RestApiApplicationTest {
 
     @Test
     public void testRestApiIntegration() {
-        webTestClient.get()
-            .uri("/process-api/repository/process-definitions")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(new ParameterizedTypeReference<DataResponse<ProcessDefinitionResponse>>() {})
-            .consumeWith(response -> {
-                DataResponse<ProcessDefinitionResponse> processDefinitions = response.getResponseBody();
-                assertThat(processDefinitions).isNotNull();
-                assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(4L);
-                assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
-                        .extracting(ProcessDefinitionResponse::getKey)
-                        .containsExactlyInAnyOrder("P001-helloWorld", "P002-processInsuranceEvent",
-                                "P003-jpaProcessInsuranceEvent", "P004-jpaServicesProcessInsuranceEvent");
-            });
+        String processDefinitionsUrl = "http://localhost:" + serverPort + "/process-api/repository/process-definitions";
+
+        ResponseEntity<DataResponse<ProcessDefinitionResponse>> response = restTemplate
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<ProcessDefinitionResponse>>() {});
+
+        assertThat(response.getStatusCode())
+            .as("Status code")
+            .isEqualTo(HttpStatus.OK);
+        DataResponse<ProcessDefinitionResponse> processDefinitions = response.getBody();
+        assertThat(processDefinitions).extracting(DataResponse::getTotal).isEqualTo(6L);
+        assert processDefinitions != null;
+        assertThat(processDefinitions.getData()).as("Deployed process definitions must contain exactly one Hello World process")
+                .extracting(ProcessDefinitionResponse::getKey)
+                .containsExactlyInAnyOrder( "A001-migration", "P001-helloWorld", "P002-processInsuranceEvent",
+                        "P003-jpaProcessInsuranceEvent", "P004-jpaServicesProcessInsuranceEvent",
+                        "P030-processInsuranceEvent");
     }
 
     @Test
@@ -60,51 +66,55 @@ public class RestApiApplicationTest {
 
     @Test
     public void testDmnRestApiIntegration() {
-        webTestClient.get()
-            .uri("/dmn-api/dmn-repository/deployments")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(new ParameterizedTypeReference<DataResponse<DmnDeploymentResponse>>() {})
-            .consumeWith(response -> {
-                DataResponse<DmnDeploymentResponse> deployments = response.getResponseBody();
-                assertThat(deployments).isNotNull();
-                assertThat(deployments.getData()).isEmpty();
-                assertThat(deployments.getTotal()).isZero();
-            });
+        String processDefinitionsUrl = "http://localhost:" + serverPort + "/dmn-api/dmn-repository/deployments";
+
+        ResponseEntity<DataResponse<DmnDeploymentResponse>> response = restTemplate
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<DmnDeploymentResponse>>() {});
+
+        assertThat(response.getStatusCode())
+            .as("Status code")
+            .isEqualTo(HttpStatus.OK);
+        DataResponse<DmnDeploymentResponse> deployments = response.getBody();
+        assertThat(deployments).isNotNull();
+        assertThat(deployments.getData())
+            .isEmpty();
+        assertThat(deployments.getTotal()).isZero();
     }
 
     @Test
     public void testIdmRestApiIntegration() {
-        webTestClient.get()
-            .uri("/idm-api/groups")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(new ParameterizedTypeReference<DataResponse<GroupResponse>>() {})
-            .consumeWith(response -> {
-                DataResponse<GroupResponse> groups = response.getResponseBody();
-                assertThat(groups).isNotNull();
-                assertThat(groups.getData())
-                        .extracting(GroupResponse::getId, GroupResponse::getType, GroupResponse::getName, GroupResponse::getUrl)
-                        .containsExactly(
-                                tuple("user", "security-role", "users", null)
-                        );
-                assertThat(groups.getTotal()).isEqualTo(1);
-            });
+        String processDefinitionsUrl = "http://localhost:" + serverPort + "/idm-api/groups";
+
+        ResponseEntity<DataResponse<GroupResponse>> response = restTemplate
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<GroupResponse>>() {});
+
+        assertThat(response.getStatusCode())
+            .as("Status code")
+            .isEqualTo(HttpStatus.OK);
+        DataResponse<GroupResponse> groups = response.getBody();
+        assertThat(groups).isNotNull();
+        assertThat(groups.getData())
+            .extracting(GroupResponse::getId, GroupResponse::getType, GroupResponse::getName, GroupResponse::getUrl)
+            .containsExactly(
+                tuple("user", "security-role", "users", null)
+            );
+        assertThat(groups.getTotal()).isEqualTo(1);
     }
 
     @Test
     public void testExternalJobRestApiIntegration() {
-        webTestClient.get()
-            .uri("/external-job-api/jobs")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(new ParameterizedTypeReference<DataResponse<JsonNode>>() {})
-            .consumeWith(response -> {
-                DataResponse<JsonNode> jobs = response.getResponseBody();
-                assertThat(jobs).isNotNull();
-                assertThat(jobs.getTotal()).isZero();
-                assertThat(jobs.getData()).isEmpty();
-            });
+        String url = "http://localhost:" + serverPort + "/external-job-api/jobs";
+
+        ResponseEntity<DataResponse<JsonNode>> response = restTemplate
+                .exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<JsonNode>>() {});
+
+        assertThat(response.getStatusCode())
+                .as("Status code")
+                .isEqualTo(HttpStatus.OK);
+        DataResponse<JsonNode> jobs = response.getBody();
+        assertThat(jobs).isNotNull();
+        assertThat(jobs.getTotal()).isZero();
+        assertThat(jobs.getData()).isEmpty();
     }
 
     @Test

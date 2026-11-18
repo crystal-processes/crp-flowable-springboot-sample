@@ -1,5 +1,7 @@
 package org.crp.flowable.springboot.sample.services.impl;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import org.crp.flowable.springboot.sample.AcmeApplicationTest;
 import org.crp.flowable.springboot.sample.services.ContractService;
 import org.flowable.engine.RuntimeService;
@@ -10,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 

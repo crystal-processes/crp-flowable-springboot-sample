@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.2</version>
+		<version>4.1.2</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.github.crystal-processes</groupId>
 	<artifactId>crp-flowable-springboot-sample</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.3.1</version>
 	<name>crp-flowable-springboot-sample</name>
 	<description>A "sample" Spring boot application + Flowable application, to show the most common issues and propose
 		solutions.</description>
@@ -18,8 +18,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>17</java.version>
 		<flowable.version>8.0.0</flowable.version>
-		<crp-flowable-ex.version>0.0.11</crp-flowable-ex.version>
-		<spring-ai.version>2.0.0</spring-ai.version>
+		<crp-flowable-ex.version>0.0.12</crp-flowable-ex.version>
 		<application.name>acme</application.name>
 	</properties>
 	<dependencies>
@@ -35,27 +34,38 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webclient</artifactId>
-		</dependency>
-		<dependency>
 			<!-- vulnerability fix for version 1.4.11 -->
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.5.25</version>
+			<version>1.6.5</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<!-- vulnerability fix for version 1.4.11 -->
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.25</version>
+			<version>1.6.5</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-liquibase</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<version>4.0.33</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.groovy</groupId>
+			<artifactId>groovy-jsr223</artifactId>
+			<version>4.0.33</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.flowable</groupId>
 			<artifactId>flowable-spring-boot-starter-rest</artifactId>
@@ -74,7 +84,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.4</version>
+			<version>42.7.14</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
@@ -115,7 +125,27 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-webtestclient</artifactId>
+			<artifactId>spring-boot-webclient-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-resttestclient</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-restclient</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-test-autoconfigure</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webclient-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -125,11 +155,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.groovy</groupId>
-			<artifactId>groovy-all</artifactId>
-			<version>4.0.28</version>
+			<groupId>io.github.crystal-processes</groupId>
+			<artifactId>crp-flowable-groovy</artifactId>
+			<version>${crp-flowable-ex.version}</version>
 			<scope>test</scope>
-			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.spockframework</groupId>
@@ -137,52 +166,27 @@
 			<version>2.3-groovy-4.0</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>testcontainers</artifactId>
-			<version>2.0.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>testcontainers-junit-jupiter</artifactId>
-			<version>2.0.5</version>
-			<scope>test</scope>
-		</dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers-postgresql</artifactId>
-            <version>2.0.5</version>
-            <scope>test</scope>
-        </dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>2.2.224</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-        </dependency>
-    </dependencies>
+	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 			<!-- Override Spring Boot 4.1.0's Groovy 5.0.6 with Groovy 4.0.28 -->
 			<dependency>
 				<groupId>org.apache.groovy</groupId>
 				<artifactId>groovy-bom</artifactId>
-				<version>4.0.28</version>
+				<version>4.0.33</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 	<build>
 		<extensions>
 			<extension>
@@ -192,6 +196,17 @@
 			</extension>
 		</extensions>
 		<plugins>
+			<plugin>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>0.8.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<publishingServerId>central</publishingServerId>
+					<autoPublish>true</autoPublish>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -206,11 +221,15 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.0.2</version>
 			</plugin>
+
 			<!-- Groovy plugin -->
 			<plugin>
 				<groupId>org.codehaus.gmavenplus</groupId>
 				<artifactId>gmavenplus-plugin</artifactId>
 				<version>3.0.2</version>
+				<configuration>
+					<targetBytecode>17</targetBytecode>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -240,37 +259,65 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.1.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.8.0</version>
 				<executions>
 					<execution>
 						<id>ZipToDeployableApp</id>
 						<phase>generate-resources</phase>
 						<goals>
-							<goal>exec</goal>
+							<goal>single</goal>
 						</goals>
 						<configuration>
-							<executable>java</executable>
-							<arguments>
-								<argument>-jar</argument>
-								<argument>${settings.localRepository}/io/github/crystal-processes/crp-flowable-shell/${crp-flowable-ex.version}/crp-flowable-shell-${crp-flowable-ex.version}.jar</argument>
-								<argument>zip</argument>
-								<argument>src/main/model/${application.name}</argument>
-								<argument>src/main/resources/apps/${application.name}-bar.zip</argument>
-							</arguments>
+							<inlineDescriptors>
+								<inlineDescriptor>
+									<id>bar</id>
+									<formats>
+										<format>zip</format>
+									</formats>
+									<includeBaseDirectory>false</includeBaseDirectory>
+									<fileSets>
+										<fileSet>
+											<directory>src/main/model/${application.name}</directory>
+											<outputDirectory>/</outputDirectory>
+										</fileSet>
+									</fileSets>
+								</inlineDescriptor>
+							</inlineDescriptors>
+							<outputDirectory>src/main/resources/apps</outputDirectory>
+							<finalName>acme</finalName>
 						</configuration>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>io.github.crystal-processes</groupId>
-						<artifactId>crp-flowable-shell</artifactId>
-						<version>${crp-flowable-ex.version}</version>
-						<type>jar</type>
-					</dependency>
-				</dependencies>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.4.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.0</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -315,12 +362,13 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
 	<scm>
 		<url>https://github.com/crystal-processes/crp-flowable-springboot-sample</url>
 		<connection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</connection>
 		<developerConnection>scm:git:https://github.com/crystal-processes/crp-flowable-springboot-sample.git</developerConnection>
-		<tag>crp-flowable-springboot-sample-0.0.2</tag>
-	</scm>
+	  <tag>crp-flowable-springboot-sample-0.0.2</tag>
+  </scm>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -334,6 +382,7 @@
 			<organization>crystal processes</organization>
 		</developer>
 	</developers>
+
 	<profiles>
 		<profile>
 			<id>postgresql</id>
@@ -347,6 +396,7 @@
 				<postgres.docker.wait.log>PostgreSQL init process complete</postgres.docker.wait.log>
 				<postgres.docker.wait.time>10000</postgres.docker.wait.time>
 			</properties>
+
 			<build>
 				<plugins>
 					<plugin>
@@ -383,6 +433,7 @@
 				</plugins>
 			</build>
 		</profile>
+
 		<profile>
 			<id>downloadModel</id>
 			<build>
@@ -481,16 +532,20 @@
 					</plugins>
 			</build>
 
-			<distributionManagement>
-				<snapshotRepository>
-					<id>ossrh</id>
-					<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-				</snapshotRepository>
-				<repository>
-					<id>ossrh</id>
-					<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-				</repository>
-			</distributionManagement>
 		</profile>
 	</profiles>
+
+	<repositories>
+		<repository>
+			<name>Central Portal Snapshots</name>
+			<id>central-portal-snapshots</id>
+			<url>https://central.sonatype.com/repository/maven-snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
