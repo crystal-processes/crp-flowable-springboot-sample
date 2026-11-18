@@ -2,7 +2,6 @@ package org.crp.flowable.springboot.sample
 
 import org.assertj.core.groups.Tuple
 import org.flowable.engine.*
-import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification

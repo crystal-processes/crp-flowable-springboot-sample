@@ -1,37 +1,43 @@
 package org.crp.flowable.springboot.sample;
 
-import tools.jackson.databind.JsonNode;
 import org.flowable.common.rest.api.DataResponse;
 import org.flowable.dmn.rest.service.api.repository.DmnDeploymentResponse;
 import org.flowable.rest.service.api.identity.GroupResponse;
 import org.flowable.rest.service.api.repository.ProcessDefinitionResponse;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.json.BasicJsonTester;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.boot.webclient.test.autoconfigure.AutoConfigureWebClient;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @AcmeApplicationTest
-@AutoConfigureWebClient
 @AutoConfigureTestRestTemplate
 public class RestApiApplicationTest {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private TestRestTemplate restTemplate;
+
+    @LocalServerPort
+    private int serverPort;
 
     @Test
     public void testRestApiIntegration() {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/process-api/repository/process-definitions";
 
         ResponseEntity<DataResponse<ProcessDefinitionResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<ProcessDefinitionResponse>>() {});
+            .withBasicAuth("admin", "test")
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+			});
 
         assertThat(response.getStatusCode())
             .as("Status code")
@@ -48,20 +54,19 @@ public class RestApiApplicationTest {
 
     @Test
     public void testCmmnRestApiIntegrationNotFound() {
+        String processDefinitionsUrl = "http://localhost:" + serverPort + "/cmmn-api/cmmn-repository/case-definitions/does-not-exist";
+
+        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "test").getForEntity(processDefinitionsUrl, String.class);
+
         BasicJsonTester jsonTester = new BasicJsonTester(getClass());
 
-        webTestClient.get()
-            .uri("/cmmn-api/cmmn-repository/case-definitions/does-not-exist")
-            .exchange()
-            .expectStatus().isNotFound()
-            .expectBody(String.class)
-            .consumeWith(response -> {
-                String body = response.getResponseBody();
-                assertThat(jsonTester.from(body)).isEqualToJson("{" +
-                        "\"message\": \"Not found\"," +
-                        "\"exception\": \"no deployed case definition found with id 'does-not-exist'\"" +
-                        "}");
-            });
+        assertThat(jsonTester.from(response.getBody())).isEqualToJson("{"
+            + "\"message\": \"Not found\","
+            + "\"exception\": \"no deployed case definition found with id 'does-not-exist'\""
+            + "}");
+        assertThat(response.getStatusCode())
+            .as("Status code")
+            .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -69,7 +74,9 @@ public class RestApiApplicationTest {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/dmn-api/dmn-repository/deployments";
 
         ResponseEntity<DataResponse<DmnDeploymentResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<DmnDeploymentResponse>>() {});
+            .withBasicAuth("admin", "test")
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+			});
 
         assertThat(response.getStatusCode())
             .as("Status code")
@@ -86,7 +93,9 @@ public class RestApiApplicationTest {
         String processDefinitionsUrl = "http://localhost:" + serverPort + "/idm-api/groups";
 
         ResponseEntity<DataResponse<GroupResponse>> response = restTemplate
-            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<GroupResponse>>() {});
+            .withBasicAuth("admin", "test")
+            .exchange(processDefinitionsUrl, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+			});
 
         assertThat(response.getStatusCode())
             .as("Status code")
@@ -106,7 +115,9 @@ public class RestApiApplicationTest {
         String url = "http://localhost:" + serverPort + "/external-job-api/jobs";
 
         ResponseEntity<DataResponse<JsonNode>> response = restTemplate
-                .exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<DataResponse<JsonNode>>() {});
+                .withBasicAuth("admin", "test")
+                .exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+				});
 
         assertThat(response.getStatusCode())
                 .as("Status code")
@@ -119,19 +130,18 @@ public class RestApiApplicationTest {
 
     @Test
     public void testExternalJobRestApiIntegrationNotFound() {
+        String url = "http://localhost:" + serverPort + "/external-job-api/jobs/does-not-exist";
+
+        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "test").getForEntity(url, String.class);
+
         BasicJsonTester jsonTester = new BasicJsonTester(getClass());
 
-        webTestClient.get()
-            .uri("/external-job-api/jobs/does-not-exist")
-            .exchange()
-            .expectStatus().isNotFound()
-            .expectBody(String.class)
-            .consumeWith(response -> {
-                String body = response.getResponseBody();
-                assertThat(jsonTester.from(body)).isEqualToJson("{" +
-                        "\"message\": \"Not found\"," +
-                        "\"exception\": \"Could not find external worker job with id 'does-not-exist'.\"" +
-                        "}");
-            });
+        assertThat(jsonTester.from(response.getBody())).isEqualToJson("{"
+                + "\"message\": \"Not found\","
+                + "\"exception\": \"Could not find external worker job with id 'does-not-exist'.\""
+                + "}");
+        assertThat(response.getStatusCode())
+                .as("Status code")
+                .isEqualTo(HttpStatus.NOT_FOUND);
     }
 }

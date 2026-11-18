@@ -1,7 +1,7 @@
 package org.crp.flowable.springboot.sample;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.crp.flowable.groovy.script.ProcessScriptFileNameResolverFactory;
 import org.flowable.common.engine.impl.scripting.ResolverFactory;
@@ -16,10 +16,10 @@ public class AcmeApplicationTestConfiguration {
 
 	@Bean EngineConfigurationConfigurer<SpringProcessEngineConfiguration> addDebuggerFileNameResolver() {
 		return config -> {
-			List<ResolverFactory> resolverFactories = config.getResolverFactories();
+			Collection<ResolverFactory> resolverFactories = config.getPostDefaultResolverFactories();
 			if (resolverFactories == null) {
 				resolverFactories = new ArrayList<>();
-				config.setResolverFactories(resolverFactories);
+				config.setPostDefaultResolverFactories(resolverFactories);
 			}
 			resolverFactories.add(new ProcessScriptFileNameResolverFactory());
 		};
