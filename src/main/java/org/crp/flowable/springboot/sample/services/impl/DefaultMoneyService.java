@@ -1,15 +1,22 @@
 package org.crp.flowable.springboot.sample.services.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.crp.flowable.springboot.sample.services.MoneyService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * Default implementation of the MoneyService.
+ */
+@Slf4j
 public class DefaultMoneyService implements MoneyService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultMoneyService.class);
+	/**
+     * Default constructor for DefaultMoneyService.
+     */
+    public DefaultMoneyService() {
+    }
 
     @Override
     public void sendMoney(String account, int amount) {
-        LOG.info("Money send to ${} -> {}.", amount, account);
+        log.info("Money send to ${} -> {}.", amount, account);
     }
 }

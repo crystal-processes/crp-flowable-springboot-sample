@@ -14,12 +14,28 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
+/**
+ * Default implementation of the ReportService.
+ */
 public class DefaultReportService implements ReportService {
 
+    /**
+     * Service for accessing history data.
+     */
     @Autowired
     HistoryService historyService;
+
+    /**
+     * Jackson ObjectMapper for JSON processing.
+     */
     @Autowired
     ObjectMapper objectMapper;
+
+    /**
+     * Default constructor for DefaultReportService.
+     */
+    public DefaultReportService() {
+    }
 
     @Override
     public ArrayNode accountAmountReport() {

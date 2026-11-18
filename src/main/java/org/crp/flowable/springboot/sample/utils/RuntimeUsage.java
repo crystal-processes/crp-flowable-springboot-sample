@@ -9,5 +9,10 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface RuntimeUsage {
+    /**
+     * The description of how the method is used in expressions.
+     *
+     * @return the usage description
+     */
     String value();
 }

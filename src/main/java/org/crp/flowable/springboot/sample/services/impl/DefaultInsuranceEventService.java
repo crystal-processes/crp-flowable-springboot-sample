@@ -8,16 +8,34 @@ import org.crp.flowable.springboot.sample.services.InsuranceEventService;
 import org.crp.flowable.springboot.sample.services.MoneyService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Default implementation of the InsuranceEventService.
+ */
 public class DefaultInsuranceEventService implements InsuranceEventService {
 
+    /**
+     * Service for contract operations.
+     */
     @Autowired
     ContractService contractService;
 
+    /**
+     * Service for money operations.
+     */
     @Autowired
     MoneyService moneyService;
 
+    /**
+     * Repository for insurance event entity operations.
+     */
     @Autowired
     InsuranceEventRepository insuranceEventRepository;
+
+    /**
+     * Default constructor for DefaultInsuranceEventService.
+     */
+    public DefaultInsuranceEventService() {
+    }
 
     @Override
     @Transactional

@@ -14,12 +14,25 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DefaultContractService implements ContractService {
 
+    /**
+     * Repository for contract entity operations.
+     */
     @Autowired
     private ContractRepository contractRepository;
 
+    /**
+     * Jackson ObjectMapper for JSON processing.
+     */
     @Autowired
     private ObjectMapper objectMapper;
 
+    /**
+     * Default constructor for DefaultContractService.
+     */
+    public DefaultContractService() {
+    }
+
+    @Override
     public JsonNode getContract(String contractId) {
         try {
             return objectMapper.readTree("""

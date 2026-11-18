@@ -8,9 +8,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * Main application class for the Acme Spring Boot application.
+ * This class initializes the application and sets up default users and groups.
+ */
 @SpringBootApplication
 public class AcmeApplication {
 
+	/**
+	 * Creates an InitializingBean that initializes default users and groups.
+	 *
+	 * @param identityService the Flowable identity service
+	 * @return an InitializingBean that creates default users and groups
+	 */
 	@Bean
 	InitializingBean usersAndGroupsInitializer(final IdentityService identityService) {
 
@@ -38,6 +48,11 @@ public class AcmeApplication {
         };
 	}
 
+	/**
+	 * The main method that starts the Spring Boot application.
+	 *
+	 * @param args command line arguments
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(AcmeApplication.class, args);
 	}
