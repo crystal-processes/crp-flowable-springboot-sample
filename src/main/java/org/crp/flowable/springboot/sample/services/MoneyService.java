@@ -2,6 +2,9 @@ package org.crp.flowable.springboot.sample.services;
 
 import org.crp.flowable.springboot.sample.utils.RuntimeUsage;
 
+/**
+ * Service interface for money transfer operations.
+ */
 public interface MoneyService {
     /**
      * Send @amount of money to @account

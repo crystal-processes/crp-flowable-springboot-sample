@@ -2,6 +2,9 @@ package org.crp.flowable.springboot.sample.services;
 
 import tools.jackson.databind.node.ArrayNode;
 
+/**
+ * Service interface for generating reports.
+ */
 public interface ReportService {
 
     /**
