@@ -114,7 +114,7 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
     @Test
     @WithMockUser(username = "testUser", roles = "USER")
     void processExecutionAddsDocumentWithProcessInstanceIdMetadata() throws MalformedURLException {
-        ProcessInstance processInstance = startProcessInstance(null, null);
+        ProcessInstance processInstance = startProcessInstance(null, null, null);
         assertThat(processInstance).isNotNull();
         assertThat(processInstance.getId()).isNotNull();
         assertThat(processInstance.isEnded()).isTrue();
@@ -127,7 +127,7 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
         Map<String, Object> additionalMetadata = new HashMap<>();
         additionalMetadata.put("customKey", "customValue");
         additionalMetadata.put("documentType", "test");
-        startProcessInstance(additionalMetadata, null);
+        startProcessInstance(additionalMetadata, null, null);
         assertThatNoDocAccess();
     }
 
@@ -142,7 +142,73 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
         Map<String, Object> additionalMetadata = new HashMap<>();
         additionalMetadata.put("customKey", "customValue");
         additionalMetadata.put("documentType", "test");
-        startProcessInstance(additionalMetadata, Set.of("testUser"));
+        startProcessInstance(additionalMetadata, Set.of("testUser"), null);
+
+        assertThatDocExists();
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = "USER")
+    void withGroupAccess() throws MalformedURLException {
+        Map<String, Object> additionalMetadata = new HashMap<>();
+        additionalMetadata.put("customKey", "customValue");
+        additionalMetadata.put("documentType", "test");
+        startProcessInstance(additionalMetadata, null, Set.of("ROLE_USER"));
+
+        assertThatDocExists();
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = "USER")
+    void withEmptyGroups() throws MalformedURLException {
+        Map<String, Object> additionalMetadata = new HashMap<>();
+        additionalMetadata.put("customKey", "customValue");
+        additionalMetadata.put("documentType", "test");
+        startProcessInstance(additionalMetadata, Set.of("testUser"), Set.of());
+
+        assertThatDocExists();
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = "USER")
+    void withNullGroups() throws MalformedURLException {
+        Map<String, Object> additionalMetadata = new HashMap<>();
+        additionalMetadata.put("customKey", "customValue");
+        additionalMetadata.put("documentType", "test");
+        startProcessInstance(additionalMetadata, Set.of("testUser"), null);
+
+        assertThatDocExists();
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = {"USER", "ADMIN"})
+    void withMultipleGroups() throws MalformedURLException {
+        Map<String, Object> additionalMetadata = new HashMap<>();
+        additionalMetadata.put("customKey", "customValue");
+        additionalMetadata.put("documentType", "test");
+        startProcessInstance(additionalMetadata, null, Set.of("ROLE_USER", "ROLE_ADMIN"));
+
+        assertThatDocExists();
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = "USER")
+    void withNoAccessDueToWrongGroup() throws MalformedURLException {
+        Map<String, Object> additionalMetadata = new HashMap<>();
+        additionalMetadata.put("customKey", "customValue");
+        additionalMetadata.put("documentType", "test");
+        startProcessInstance(additionalMetadata, null, Set.of("ROLE_ADMIN"));
+
+        assertThatNoDocAccess();
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = "USER")
+    void withUserAndGroupAccess() throws MalformedURLException {
+        Map<String, Object> additionalMetadata = new HashMap<>();
+        additionalMetadata.put("customKey", "customValue");
+        additionalMetadata.put("documentType", "test");
+        startProcessInstance(additionalMetadata, Set.of("testUser"), Set.of("ROLE_USER"));
 
         assertThatDocExists();
     }
@@ -156,11 +222,12 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
         assertThat(storedDocument.getMetadata()).containsEntry("documentType", "test");
     }
 
-    private @NotNull ProcessInstance startProcessInstance(Map<String, Object> additionalMetadata, Set<String> testUsers) throws MalformedURLException {
+    private @NotNull ProcessInstance startProcessInstance(Map<String, Object> additionalMetadata, Set<String> testUsers, Set<String> testGroups) throws MalformedURLException {
         Map<String, Object> variables = new HashMap<>();
         variables.put("documentUrl", new File(TEST_DOCUMENT_PATH).toURI().toURL().toString());
         variables.put("metadata", additionalMetadata);
         variables.put("users", testUsers);
+        variables.put("groups", testGroups);
         ProcessInstance processInstance = runtimeService.createProcessInstanceBuilder()
                 .processDefinitionKey(PROCESS_DEFINITION_KEY)
                 .variables(variables)

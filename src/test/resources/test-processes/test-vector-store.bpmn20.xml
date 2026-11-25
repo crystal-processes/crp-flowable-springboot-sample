@@ -27,6 +27,9 @@
         <flowable:field name="users">
           <flowable:expression>${users}</flowable:expression>
         </flowable:field>
+        <flowable:field name="groups">
+          <flowable:expression>${groups}</flowable:expression>
+        </flowable:field>
         <flowable:field name="documentsVariableName">
           <flowable:expression>documents</flowable:expression>
         </flowable:field>
