@@ -52,26 +52,26 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
     private static final String TEST_DOCUMENT_PATH = "target/test-docs/test-document-it.txt";
     private static final String PROCESS_DEFINITION_KEY = "testVectorStoreProcess";
     private static final String CASE_DEFINITION_KEY = "oneHumanTaskCase";
-
-    @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:pg17"))
-            .withDatabaseName("flowable")
-            .withUsername("flowable")
-            .withPassword("flowable");
-
-    @Container
-    static GenericContainer<?> ollama = new GenericContainer<>(DockerImageName.parse("ollama/ollama:latest"))
-            .withExposedPorts(11434);
-
-    @DynamicPropertySource
-    static void overrideProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.driver-class-name", () -> postgres.getDriverClassName());
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.ai.ollama.base-url", () ->
-            "http://" + ollama.getHost() + ":" + ollama.getFirstMappedPort());
-    }
+//
+//    @Container
+//    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:pg17"))
+//            .withDatabaseName("flowable")
+//            .withUsername("flowable")
+//            .withPassword("flowable");
+//
+//    @Container
+//    static GenericContainer<?> ollama = new GenericContainer<>(DockerImageName.parse("ollama/ollama:latest"))
+//            .withExposedPorts(11434);
+//
+//    @DynamicPropertySource
+//    static void overrideProperties(DynamicPropertyRegistry registry) {
+//        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+//        registry.add("spring.datasource.driver-class-name", () -> postgres.getDriverClassName());
+//        registry.add("spring.datasource.username", postgres::getUsername);
+//        registry.add("spring.datasource.password", postgres::getPassword);
+//        registry.add("spring.ai.ollama.base-url", () ->
+//            "http://" + ollama.getHost() + ":" + ollama.getFirstMappedPort());
+//    }
 
     @Autowired
     private RepositoryService repositoryService;
@@ -106,6 +106,7 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
                 
                 CREATE TABLE IF NOT EXISTS vector_store (
                 	id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+                	documentsId varchar(64),
                 	content text,
                 	metadata json,
                 	embedding vector(768)
@@ -125,7 +126,7 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
                 .deploy()
                 .getId();
 
-        pullOllamaModel("http://" + ollama.getHost() + ":" + ollama.getFirstMappedPort(), "nomic-embed-text");
+//        pullOllamaModel("http://" + ollama.getHost() + ":" + ollama.getFirstMappedPort(), "nomic-embed-text");
     }
 
     private static void pullOllamaModel(String baseUrl, String modelName) throws IOException, InterruptedException {

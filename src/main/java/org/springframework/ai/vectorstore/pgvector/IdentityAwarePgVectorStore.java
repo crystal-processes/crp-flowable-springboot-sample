@@ -36,6 +36,8 @@ import org.springframework.ai.vectorstore.observation.AbstractObservationVectorS
 import org.springframework.ai.vectorstore.observation.VectorStoreObservationContext;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -45,6 +47,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * PostgreSQL-based vector store implementation using the pgvector extension.
@@ -266,7 +269,7 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
 
     private void insertOrUpdateBatch(List<Document> batch, List<Document> documents, List<float[]> embeddings) {
         String sql = "INSERT INTO " + getFullyQualifiedTableName()
-                + " (id, content, metadata, embedding) VALUES (?, ?, ?::jsonb, ?) " + "ON CONFLICT (id) DO "
+                + " (id, documentsId, content, metadata, embedding) VALUES (?, ?, ?, ?::jsonb, ?) " + "ON CONFLICT (id) DO "
                 + "UPDATE SET content = ? , metadata = ?::jsonb , embedding = ? ";
 
         this.jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
@@ -276,18 +279,21 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
 
                 var document = batch.get(i);
                 var id = convertIdToPgType(document.getId());
+                var documentsId = document.getMetadata().get("documentsId");
+                document.getMetadata().remove("documentsId");
                 var content = document.getText();
                 var json = toJson(document.getMetadata());
                 var embedding = embeddings.get(documents.indexOf(document));
                 var pGvector = new PGvector(embedding);
 
                 StatementCreatorUtils.setParameterValue(ps, 1, SqlTypeValue.TYPE_UNKNOWN, id);
-                StatementCreatorUtils.setParameterValue(ps, 2, SqlTypeValue.TYPE_UNKNOWN, content);
-                StatementCreatorUtils.setParameterValue(ps, 3, SqlTypeValue.TYPE_UNKNOWN, json);
-                StatementCreatorUtils.setParameterValue(ps, 4, SqlTypeValue.TYPE_UNKNOWN, pGvector);
-                StatementCreatorUtils.setParameterValue(ps, 5, SqlTypeValue.TYPE_UNKNOWN, content);
-                StatementCreatorUtils.setParameterValue(ps, 6, SqlTypeValue.TYPE_UNKNOWN, json);
-                StatementCreatorUtils.setParameterValue(ps, 7, SqlTypeValue.TYPE_UNKNOWN, pGvector);
+                StatementCreatorUtils.setParameterValue(ps, 2, SqlTypeValue.TYPE_UNKNOWN, documentsId);
+                StatementCreatorUtils.setParameterValue(ps, 3, SqlTypeValue.TYPE_UNKNOWN, content);
+                StatementCreatorUtils.setParameterValue(ps, 4, SqlTypeValue.TYPE_UNKNOWN, json);
+                StatementCreatorUtils.setParameterValue(ps, 5, SqlTypeValue.TYPE_UNKNOWN, pGvector);
+                StatementCreatorUtils.setParameterValue(ps, 6, SqlTypeValue.TYPE_UNKNOWN, content);
+                StatementCreatorUtils.setParameterValue(ps, 7, SqlTypeValue.TYPE_UNKNOWN, json);
+                StatementCreatorUtils.setParameterValue(ps, 8, SqlTypeValue.TYPE_UNKNOWN, pGvector);
             }
 
             @Override
@@ -352,32 +358,7 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
 
         String jsonPathFilter =
                 // as user must have identity link to vector
-                " AND (EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_::uuid=id and I.SCOPE_TYPE_ = 'vector' and I.USER_ID_ = '" + getCurrentUser() + "') " +
-                // as user must have access to all entities referred from the vector
-                """  
-                     AND NOT EXISTS (
-                                SELECT 1
-                                FROM ACT_RU_ENTITYLINK E
-                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (E.scope_type_ = 'bpmn' AND I.proc_inst_id_ = E.scope_id_ AND I.user_id_ = '""" + getCurrentUser() + """
-                ')
-                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null AND E.scope_type_='bpmn'
-                    )
-                     AND NOT EXISTS (
-                                SELECT 1
-                                FROM ACT_RU_ENTITYLINK E
-                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (E.scope_type_ = 'task' AND I.task_id_ = E.scope_id_ AND I.user_id_ = '""" + getCurrentUser() + """
-                ')
-                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null AND E.scope_type_='task'
-                    )
-                    AND NOT EXISTS (
-                                SELECT 1
-                                FROM ACT_RU_ENTITYLINK E
-                                LEFT JOIN ACT_RU_IDENTITYLINK I ON (E.scope_type_ = I.scope_type_ AND E.scope_id_ = I.scope_id_ AND I.user_id_ = '""\" + getCurrentUser() + ""\"
-                ')
-                                WHERE E.ref_scope_id_::uuid=id AND E.REF_SCOPE_TYPE_ = 'vector' AND I.id_ is null AND E.scope_type_= I.scope_type_
-                    )
-                )
-                """;
+                " AND EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_=documentsId and I.SCOPE_TYPE_ = 'vector' and (I.USER_ID_ = ?))";
 
         if (StringUtils.hasText(nativeFilterExpression)) {
             jsonPathFilter = " AND " + nativeFilterExpression + " ";
@@ -390,11 +371,16 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
         return this.jdbcTemplate.query(
                 String.format(this.getDistanceType().similaritySearchSqlTemplate, getFullyQualifiedTableName(),
                         jsonPathFilter),
-                this.documentRowMapper, queryEmbedding, queryEmbedding, distance, request.getTopK());
+                this.documentRowMapper, queryEmbedding, queryEmbedding, distance, getCurrentUser(), request.getTopK());
     }
 
     private String getCurrentUser() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    private Collection<String> getCurrentGroups() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
     }
 
     public List<Double> embeddingDistance(String query) {
@@ -463,6 +449,7 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
         this.jdbcTemplate.execute(String.format("""
 				CREATE TABLE IF NOT EXISTS %s (
 					id %s PRIMARY KEY,
+					documentsId varchar(64),
 					content text,
 					metadata json,
 					embedding vector(%d)
@@ -499,7 +486,7 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
 
     private String getColumnTypeName() {
         return switch (getIdType()) {
-            case UUID -> "uuid DEFAULT uuid_generate_v4()";
+            case UUID -> "uuid DEFAULT uuid_generate`_v4()";
             case TEXT -> "text";
             case INTEGER -> "integer";
             case SERIAL -> "serial";

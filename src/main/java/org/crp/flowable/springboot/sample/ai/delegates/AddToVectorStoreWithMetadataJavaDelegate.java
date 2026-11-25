@@ -28,6 +28,7 @@ public class AddToVectorStoreWithMetadataJavaDelegate implements JavaDelegate {
     protected Expression documentUrl;
     protected Expression metadata;
     protected Expression users;
+    protected Expression groups;
     protected Expression entities;
     protected Expression documentsVariableName;
 
@@ -35,9 +36,11 @@ public class AddToVectorStoreWithMetadataJavaDelegate implements JavaDelegate {
     public void execute(DelegateExecution execution) {
         LOG.debug("Adding documents to vector store with metadata.");
 
-        List<Document> documentInstances = addMetadataToDocuments(getDocuments(execution), execution);
+        String documentsId = CommandContextUtil.getProcessEngineConfiguration().getIdGenerator().getNextId();
+        List<Document> documentInstances = addMetadataToDocuments(getDocuments(execution), execution, documentsId);
         getVectorStore(execution).add(documentInstances);
-        getAllowedUsers(execution).forEach(userId -> addUserIdentityLinkToDocuments(userId, documentInstances));
+        getAllowedUsers(execution).forEach(userId -> addUserIdentityLinkToDocuments(userId, documentsId));
+        getAllowedGroups(execution).forEach(groupId -> addGroupIdentityLinkToDocuments(groupId, documentsId));
         getRelatedEntities(execution).forEach(entity -> addEntityLink(documentInstances, entity));
 
         Optional.ofNullable(getDocumentsVariableName(execution))
@@ -58,45 +61,37 @@ public class AddToVectorStoreWithMetadataJavaDelegate implements JavaDelegate {
         });
     }
 
-    private static void addUserIdentityLinkToDocuments(String userId, List<Document> documentInstances) {
-        documentInstances.forEach(doc -> {
+    private static void addUserIdentityLinkToDocuments(String userId, String documentsId) {
             IdentityLinkEntity identityLink = CommandContextUtil.getIdentityLinkService().createIdentityLink();
-            identityLink.setScopeId(doc.getId());
+            identityLink.setScopeId(documentsId);
             identityLink.setScopeType("vector");
             identityLink.setUserId(userId);
             CommandContextUtil.getIdentityLinkService().insertIdentityLink(identityLink);
-            });
+    }
+
+    private static void addGroupIdentityLinkToDocuments(String groupId, String documentsId) {
+            IdentityLinkEntity identityLink = CommandContextUtil.getIdentityLinkService().createIdentityLink();
+            identityLink.setScopeId(documentsId);
+            identityLink.setScopeType("vector");
+            identityLink.setGroupId(groupId);
+            CommandContextUtil.getIdentityLinkService().insertIdentityLink(identityLink);
     }
 
     private List<Document> getDocuments(DelegateExecution execution) {
         return new TikaDocumentReader(getDocumentUrl(execution)).get();
     }
 
-    private List<Document> addMetadataToDocuments(List<Document> documents, DelegateExecution execution) {
-        String processInstanceId = execution.getProcessInstanceId();
-        Map<String, Object> additionalMetadata = getAdditionalMetadata(execution);
+    private List<Document> addMetadataToDocuments(List<Document> documents, DelegateExecution execution, String documentsId) {
+        HashMap<String, Object> additionalMetadata = getAdditionalMetadata(execution, documentsId);
         
         return documents.stream()
                 .map(document -> {
-                    Map<String, Object> newMetadata = new HashMap<>();
-                    
-                    // Add existing metadata from the document
-                    if (document.getMetadata() != null) {
-                        newMetadata.putAll(document.getMetadata());
-                    }
+					// Add additional metadata to the document
+                    document.getMetadata().putAll(additionalMetadata);
 
-                    // Add any additional metadata from expression
-                    if (additionalMetadata != null) {
-                        newMetadata.putAll(additionalMetadata);
-                    }
-
-                    Document.Builder documentBuilder = Document.builder()
-                            .text(document.getText());
-                    if (newMetadata != null) {
-                        documentBuilder.metadata(newMetadata);
-                    }
-                    return documentBuilder
-                            .metadata(newMetadata)
+					return Document.builder()
+                            .text(document.getText())
+                            .metadata(document.getMetadata())
                             .build();
                 })
                 .toList();
@@ -114,6 +109,10 @@ public class AddToVectorStoreWithMetadataJavaDelegate implements JavaDelegate {
         return Objects.requireNonNullElse(ExpressionsHelper.getValue(users, execution, Collection.class), Collections.<String>emptySet());
     }
 
+    private Collection<String> getAllowedGroups(DelegateExecution execution) {
+        return Objects.requireNonNullElse(ExpressionsHelper.getValue(groups, execution, Collection.class), Collections.<String>emptySet());
+    }
+
     private Collection<String> getRelatedEntities(DelegateExecution execution) {
         return Objects.requireNonNullElse(ExpressionsHelper.getValue(entities, execution, Collection.class), Collections.<String>emptySet());
     }
@@ -123,7 +122,13 @@ public class AddToVectorStoreWithMetadataJavaDelegate implements JavaDelegate {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> getAdditionalMetadata(DelegateExecution execution) {
-        return ExpressionsHelper.getValue(metadata, execution, Map.class);
+    private HashMap<String, Object> getAdditionalMetadata(DelegateExecution execution, String documentsId) {
+        Map<String, Object> metadataFromModel = ExpressionsHelper.getValue(metadata, execution, Map.class);
+        HashMap<String, Object> additionalMetadata = new HashMap<>();
+        if (metadataFromModel != null) {
+            additionalMetadata.putAll(metadataFromModel);
+        }
+        additionalMetadata.put("documentsId", documentsId);
+        return additionalMetadata;
     }
 }
