@@ -358,7 +358,7 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
 
         String jsonPathFilter =
                 // as user must have identity link to vector
-                " AND EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_=documentsId and I.SCOPE_TYPE_ = 'vector' and (I.USER_ID_ = ?))";
+                " AND EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_=documentsId and I.SCOPE_TYPE_ = 'vector' and (I.USER_ID_ = ? OR I.GROUP_ID_ = ANY (?)))";
 
         if (StringUtils.hasText(nativeFilterExpression)) {
             jsonPathFilter = " AND " + nativeFilterExpression + " ";
@@ -371,16 +371,16 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
         return this.jdbcTemplate.query(
                 String.format(this.getDistanceType().similaritySearchSqlTemplate, getFullyQualifiedTableName(),
                         jsonPathFilter),
-                this.documentRowMapper, queryEmbedding, queryEmbedding, distance, getCurrentUser(), request.getTopK());
+                this.documentRowMapper, queryEmbedding, queryEmbedding, distance, getCurrentUser(), getCurrentGroups(), request.getTopK());
     }
 
     private String getCurrentUser() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    private Collection<String> getCurrentGroups() {
+    private String[] getCurrentGroups() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+	    return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()).toArray(new String[0]);
     }
 
     public List<Double> embeddingDistance(String query) {
