@@ -356,22 +356,32 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
         String nativeFilterExpression = (request.getFilterExpression() != null)
                 ? this.filterExpressionConverter.convertExpression(request.getFilterExpression()) : "";
 
-        String jsonPathFilter =
-                // as user must have identity link to vector
-                " AND EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_=documentsId and I.SCOPE_TYPE_ = 'vector' and (I.USER_ID_ = ? OR I.GROUP_ID_ = ANY (?)))";
+        String jsonPathFilter = "";
+        if (!isAdmin()) {
+            jsonPathFilter =
+                    // as user must have identity link to vector
+                    " AND EXISTS(select I.ID_ from ACT_RU_IDENTITYLINK I where I.scope_id_=documentsId and I.SCOPE_TYPE_ = 'vector' and (I.USER_ID_ = ? OR I.GROUP_ID_ = ANY (?)))";
+        }
 
         if (StringUtils.hasText(nativeFilterExpression)) {
-            jsonPathFilter = " AND " + nativeFilterExpression + " ";
+            jsonPathFilter = " AND " + nativeFilterExpression + " " + jsonPathFilter;
         }
 
         double distance = 1 - request.getSimilarityThreshold();
 
         PGvector queryEmbedding = getQueryEmbedding(request.getQuery());
 
-        return this.jdbcTemplate.query(
-                String.format(this.getDistanceType().similaritySearchSqlTemplate, getFullyQualifiedTableName(),
-                        jsonPathFilter),
-                this.documentRowMapper, queryEmbedding, queryEmbedding, distance, getCurrentUser(), getCurrentGroups(), request.getTopK());
+        if (isAdmin()) {
+            return this.jdbcTemplate.query(
+                    String.format(this.getDistanceType().similaritySearchSqlTemplate, getFullyQualifiedTableName(),
+                            jsonPathFilter),
+                    this.documentRowMapper, queryEmbedding, queryEmbedding, distance, request.getTopK());
+        } else {
+            return this.jdbcTemplate.query(
+                    String.format(this.getDistanceType().similaritySearchSqlTemplate, getFullyQualifiedTableName(),
+                            jsonPathFilter),
+                    this.documentRowMapper, queryEmbedding, queryEmbedding, distance, getCurrentUser(), getCurrentGroups(), request.getTopK());
+        }
     }
 
     private String getCurrentUser() {
@@ -381,6 +391,13 @@ public class IdentityAwarePgVectorStore extends AbstractObservationVectorStore i
     private String[] getCurrentGroups() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	    return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()).toArray(new String[0]);
+    }
+
+    private boolean isAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null &&
+               authentication.getAuthorities().stream()
+                   .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
 
     public List<Double> embeddingDistance(String query) {

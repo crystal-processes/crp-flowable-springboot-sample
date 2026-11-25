@@ -203,6 +203,18 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
     }
 
     @Test
+    @WithMockUser(username = "adminUser", roles = "ADMIN")
+    void adminUserHasFullAccess() throws MalformedURLException {
+        Map<String, Object> additionalMetadata = new HashMap<>();
+        additionalMetadata.put("customKey", "customValue");
+        additionalMetadata.put("documentType", "test");
+        // No users or groups granted access, but admin should still access
+        startProcessInstance(additionalMetadata, null, null);
+
+        assertThatDocExists();
+    }
+
+    @Test
     @WithMockUser(username = "testUser", roles = "USER")
     void withUserAndGroupAccess() throws MalformedURLException {
         Map<String, Object> additionalMetadata = new HashMap<>();
