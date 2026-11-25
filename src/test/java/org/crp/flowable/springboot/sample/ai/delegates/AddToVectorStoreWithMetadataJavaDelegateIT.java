@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.crp.flowable.springboot.sample.AcmeApplicationTest;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
@@ -18,13 +21,19 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.pgvector.IdentityAwarePgVectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,26 +44,26 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
     private static final String TEST_DOCUMENT_CONTENT = "This is a test document for vector store integration testing.";
     private static final String TEST_DOCUMENT_PATH = "target/test-docs/test-document-it.txt";
     private static final String PROCESS_DEFINITION_KEY = "testVectorStoreProcess";
-//
-//    @Container
-//    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:pg17"))
-//            .withDatabaseName("flowable")
-//            .withUsername("flowable")
-//            .withPassword("flowable");
-//
-//    @Container
-//    static GenericContainer<?> ollama = new GenericContainer<>(DockerImageName.parse("ollama/ollama:latest"))
-//            .withExposedPorts(11434);
-//
-//    @DynamicPropertySource
-//    static void overrideProperties(DynamicPropertyRegistry registry) {
-//        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-//        registry.add("spring.datasource.driver-class-name", () -> postgres.getDriverClassName());
-//        registry.add("spring.datasource.username", postgres::getUsername);
-//        registry.add("spring.datasource.password", postgres::getPassword);
-//        registry.add("spring.ai.ollama.base-url", () ->
-//            "http://" + ollama.getHost() + ":" + ollama.getFirstMappedPort());
-//    }
+
+    @Container
+    static PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("pgvector/pgvector:pg17"))
+            .withDatabaseName("flowable")
+            .withUsername("flowable")
+            .withPassword("flowable");
+
+    @Container
+    static GenericContainer<?> ollama = new GenericContainer<>(DockerImageName.parse("ollama/ollama:latest"))
+            .withExposedPorts(11434);
+
+    @DynamicPropertySource
+    static void overrideProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.driver-class-name", () -> postgres.getDriverClassName());
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.ai.ollama.base-url", () ->
+            "http://" + ollama.getHost() + ":" + ollama.getFirstMappedPort());
+    }
 
     @Autowired
     private RepositoryService repositoryService;
@@ -100,6 +109,43 @@ class AddToVectorStoreWithMetadataJavaDelegateIT {
                 .deploy()
                 .getId();
 
+        pullOllamaModel("http://" + ollama.getHost() + ":" + ollama.getFirstMappedPort(), "nomic-embed-text");
+    }
+
+    private static void pullOllamaModel(String baseUrl, String modelName) throws IOException, InterruptedException {
+        java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new URL(baseUrl + "/api/tags").openConnection();
+        conn.setRequestMethod("GET");
+        String response = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8.name());
+        conn.disconnect();
+
+        if (!response.contains("\"name\":\"" + modelName + "\"")) {
+            conn = (java.net.HttpURLConnection) new URL(baseUrl + "/api/pull").openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+            try (java.io.OutputStream os = conn.getOutputStream()) {
+                String body = "{\"name\":\"" + modelName + "\"}";
+                os.write(body.getBytes(StandardCharsets.UTF_8));
+            }
+            IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
+            conn.getInputStream().close();
+
+            for (int i = 0; i < 60; i++) {
+                Thread.sleep(5000);
+                try {
+                    conn = (java.net.HttpURLConnection) new URL(baseUrl + "/api/tags").openConnection();
+                    conn.setRequestMethod("GET");
+                    response = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
+                    conn.disconnect();
+                    if (response.contains(modelName)) {
+                        return;
+                    }
+                } catch (Exception e) {
+                    // Model not ready yet
+                }
+            }
+            throw new IOException("Model " + modelName + " did not become ready within timeout");
+        }
     }
 
     @AfterEach
